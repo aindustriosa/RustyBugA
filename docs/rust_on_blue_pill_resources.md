@@ -1,16 +1,20 @@
-# Articles
+# Articles/docs
+## (2022) Utah Rust BluePill Workshop
+[https://cgit.pinealservo.com/BluePill_Rust/resources/wiki/Home](https://cgit.pinealservo.com/BluePill_Rust/resources/wiki/Home)
+https://cgit.pinealservo.com/BluePill_Rust
 
 ## 2020_07 Rust on STM32: Getting started
 https://jonathanklimt.de/electronics/programming/embedded-rust/rust-on-stm32-2/
 Usa Bluepill y STLink
+
 ## 2021_02 Rust and STM32: A Quick Start Guide
 https://bacelarhenrique.me/2021/02/21/rust-and-stm32-a-quick-start-guide.html
 usa una NUCLEO-F103RB y STLink
+
 ## 2022_11 Embedded Rust & Embassy: GPIO Button Controlled Blinking
 https://dev.to/apollolabsbin/embedded-rust-embassy-gpio-button-controlled-blinking-3ee6
    This blog post is the first one of a multi-part series of posts where I will explore various peripherals of the STM32 microcontroller using the embedded Rust embassy framework.
    I will be working with the STM32F401
-
 
 ## 2023_08 What the HAL? The Quest for Finding a Suitable Embedded Rust HAL
 https://dev.to/apollolabsbin/what-the-hal-the-quest-for-finding-a-suitable-embedded-rust-hal-2i02
@@ -136,6 +140,16 @@ So far we have up and running:
 
 There is a bunch of videos on youtube showing progress in implementing the above functionality. You can find it [here](https://www.youtube.com/watch?v=Meqhiogdp1o)
 
-# Others
+# Rust on simlar boards
+## https://docs.rust-embedded.org/discovery/f3discovery/
+
+## (2019) [maple-mini-rs](https://github.com/evq/maple-mini-rs#maple-mini-rs)
+A small rust wrapper crate around [stm32f1xx-hal](https://github.com/stm32-rs/stm32f1xx-hal).
+Provides numbered pin aliases corresponding to the pins on the maple mini board.
+
+## [stm32f407g-disc](https://github.com/stm32-rs/stm32f407g-disc/tree/master#stm32f407g-disc)
+_stm32f407g-disc_ contains a basic board support package for the [STM32F407G-DISC](https://www.st.com/en/evaluation-tools/stm32f4discovery.html) microcontroller board (also known as STM32F4DISCOVERY, but easy to confuse with other STM32F4 discovery boards which also exist) to write firmwares using the Rust language. This experimentation board features multiple user programmable LEDs an accelerometer, an audio DAC with amplified, a microphone jack, a microphone and a user programmable USB connector. A shield with breakout for Ethernet, RS232 serial port, SD-Card reader, and LCD connector is also available.
+
+# Other
 
 ## https://crates.io/crates/mpu9250
