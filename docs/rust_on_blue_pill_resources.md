@@ -101,6 +101,7 @@ usa probe-rs
 ## https://github.com/piedoom/blue-pill-quickstart-rtic (2020)
 
 ## [STM32 BluePill in Rust - Project template](https://github.com/joaocarvalhoopen/stm32_bluepill_in_rust__Template#stm32-bluepill-in-rust---project-template) (2022)
+lots of references
 
 # Rust con blue pill Rust projects
 ## https://github.com/Windfisch/midikraken/tree/master/firmware
