@@ -52,6 +52,8 @@ https://gill.net.in/posts/stm32-pcb-sailing-and-rust/
 
 https://github.com/mygnu/rregatta-firmware
 
+## (2019)  [Rust and C side-by-side on the STM32F103C8T6 (“Blue pill”) board](https://ioprog.com/2019/09/03/rust-and-c-side-by-side-on-the-stm32f103c8t6-blue-pill-board/)
+
 # Base libs repos
 
 ##  [`stm32f1xx-hal`](https://github.com/stm32-rs/stm32f1xx-hal#stm32f1xx-hal)
