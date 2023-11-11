@@ -20,6 +20,9 @@ cargo install cargo-generate arm-toolchain
 
 ```
 wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+
+mkdir /home/$USER/arm-gcc/
+tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
 ```
 
 ## Flashing
