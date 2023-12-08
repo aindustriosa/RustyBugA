@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "xtask",
+  "mightybuga_bsc"
+]
+
+resolver = "2"
