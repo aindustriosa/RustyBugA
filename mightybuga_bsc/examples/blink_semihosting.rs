@@ -8,7 +8,7 @@
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
 
-use panic_semihosting as _;
+use panic_semihosting as _; // need to enable panic_semihosting in Cargo.toml
 
 use core::fmt::Write;
 // Note that Semihosting needs somebody listening (STLink). If you program this code with

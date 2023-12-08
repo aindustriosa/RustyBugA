@@ -8,23 +8,13 @@
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
 
-use panic_semihosting as _;
-
-use core::fmt::Write;
-// Note that Semihosting needs somebody listening (STLink). If you program this code with
-// semihosting and reset it without an OpenOCD listening the program will halt on the first
-// writeln.
-// https://wiki.segger.com/Semihosting
-use cortex_m_semihosting::hio;
+use panic_halt as _;
 
 use cortex_m_rt::entry;
 use stm32f1xx_hal::{pac, prelude::*};
 
 #[entry]
 fn main() -> ! {
-    let mut hstdout = hio::hstdout().unwrap();
-    writeln!(hstdout, "Hello, world!").unwrap();
-
     // Get access to the core peripherals from the cortex-m crate
     let cp = cortex_m::Peripherals::take().unwrap();
     // Get access to the device specific peripherals from the peripheral access crate
@@ -58,7 +48,6 @@ fn main() -> ! {
         delay.delay_ms(1_000_u16);
         led.set_low();
         i += 1;
-        writeln!(hstdout, "Hello again; I have blinked {} times.", i).unwrap();
         if i == 10 {
             panic!("Yow, 10 times is enough!");
         }
