@@ -39,7 +39,7 @@ fn main() -> ! {
     loop {
         delay.delay(300.millis());
         led.set_high();
-        delay.delay_ms(1_000_u16);
+        delay.delay_ms(2_000_u16);
         led.set_low();
     }
 }

@@ -11,9 +11,11 @@ fn main() -> Result<(), anyhow::Error> {
 
     match &args[..] {
         ["mightybuga_bsc", "example", "blink"] => exec_mightybuga_bsc_example_blink(),
+        ["mightybuga_bsc", "example", "usart_no_bsc"] => exec_mightybuga_bsc_example_usart_no_bsc(),
         _ => {
             println!("USAGE:");
             println!("\tcargo xtask mightybuga_bsc example blink");
+            println!("\tcargo xtask mightybuga_bsc example usart_no_bsc");
             Ok(())
         }
     }
@@ -23,6 +25,13 @@ fn exec_mightybuga_bsc_example_blink() -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("mightybuga_bsc"));
     cmd!(sh, "cargo run --example blink").run()?;
+    Ok(())
+}
+
+fn exec_mightybuga_bsc_example_usart_no_bsc() -> Result<(), anyhow::Error> {
+    let sh = Shell::new()?;
+    sh.change_dir(root_dir().join("mightybuga_bsc"));
+    cmd!(sh, "cargo run --example usart_no_bsc").run()?;
     Ok(())
 }
 
