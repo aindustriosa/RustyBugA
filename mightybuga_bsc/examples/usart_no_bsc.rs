@@ -69,21 +69,10 @@ fn main() -> ! {
     let _ = s.iter().map(|c| block!(tx.write(*c))).last();
 
     loop {
-        // Wait for a byte to be received
-        //let received = block!(rx.read()).unwrap();
-        let received = rx.read().unwrap_or(b'.');
-
-        //  blink the led for 300ms
-        led.set_high();
-        delay.delay(300.millis());
-        led.set_low();
-
-        // Echo back the byte
-        //block!(tx.write(received)).ok();
-
-        // print a dot every 1s
-        let _ = block!(tx.write(received));
-        delay.delay(1_000.millis());
-
+        // Wait for a byte to be received and print it back if no error toggling the led
+        if let Ok(byte) = block!(rx.read()) {
+            let _ = block!(tx.write(byte));
+            led.toggle();
+        }
     }
 }
