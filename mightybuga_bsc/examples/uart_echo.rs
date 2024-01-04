@@ -2,15 +2,18 @@
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use cortex_m_rt::entry;
+
+use mightybuga_bsc::prelude::*;
 use panic_halt as _;
 use mightybuga_bsc as board;
 use nb::block;
 
 #[entry]
 fn main() -> ! {
-    let mut board = board::Mightybuga_BSC::take().unwrap();
+    let board = board::Mightybuga_BSC::take().unwrap();
+    let mut delay = board.delay;
     let mut uart = board.uart;
+    let mut led_d1 = board.leds.d1;
 
     let s = b"\r\nPlease type characters to echo:\r\n";
     let _ = s.iter().map(|c| block!(uart.tx.write(*c))).last();
@@ -18,7 +21,8 @@ fn main() -> ! {
     loop {
         if let Ok(byte) = block!(uart.rx.read()) {
             let _ = block!(uart.tx.write(byte));
-            //led.toggle();
+            led_d1.toggle();
+            delay.delay_ms(100_u16);
         }
     }
 }
