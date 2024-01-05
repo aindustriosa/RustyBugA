@@ -1,7 +1,8 @@
 [workspace]
 members = [
   "xtask",
-  "mightybuga_bsc"
+  "mightybuga_bsc",
+  "libs/logging"
 ]
 
 resolver = "2"

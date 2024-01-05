@@ -10,27 +10,42 @@ fn main() -> Result<(), anyhow::Error> {
     let args = args.iter().map(|s| &**s).collect::<Vec<_>>();
 
     let mightybuga_bsc_example_names = get_mightybuga_bsc_example_names()?;
+    let lib_names = get_lib_names()?;
 
     match &args[..] {
         ["mightybuga_bsc", "example", example_name] => {
-            // get if example_name is not in mightybuga_bsc_example_names
             if !mightybuga_bsc_example_names.contains(&example_name.to_string()) {
-                println!("ERROR: example name {} is not in mightybuga_bsc_example_names", example_name);
-                print_usage(mightybuga_bsc_example_names);
-                return Ok(())
+                println!(
+                    "ERROR: example name {} is not in mightybuga_bsc_example_names",
+                    example_name
+                );
+                print_usage(mightybuga_bsc_example_names, lib_names);
+                return Ok(());
             }
-            exec_mightybuga_bsc_example(example_name.to_string())},
+            exec_mightybuga_bsc_example(example_name.to_string())
+        }
+        ["test", "lib", lib_name] => {
+            if !lib_names.contains(&lib_name.to_string()) {
+                println!("ERROR: lib name {} is not in lib_names", lib_name);
+                print_usage(mightybuga_bsc_example_names, lib_names);
+                return Ok(());
+            }
+            exec_test_lib(lib_name)
+        },
         _ => {
-            print_usage(mightybuga_bsc_example_names);
+            print_usage(mightybuga_bsc_example_names, lib_names);
             Ok(())
         }
     }
 }
 
-fn print_usage(mightybuga_bsc_example_names: Vec<String>) {
+fn print_usage(mightybuga_bsc_example_names: Vec<String>, lib_names: Vec<String>) {
     println!("USAGE:");
     for example_name in mightybuga_bsc_example_names {
         println!("\tcargo xtask mightybuga_bsc example {}", example_name);
+    }
+    for lib_name in lib_names {
+        println!("\tcargo xtask test lib {}", lib_name);
     }
 }
 
@@ -38,8 +53,19 @@ fn get_mightybuga_bsc_example_names() -> Result<Vec<String>, anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("mightybuga_bsc"));
     let output = cmd!(sh, "ls examples").read()?;
-    let example_names = output.split("\n").map(|s| s[..s.len() - 3].to_string()).collect::<Vec<_>>();
+    let example_names = output
+        .split("\n")
+        .map(|s| s[..s.len() - 3].to_string())
+        .collect::<Vec<_>>();
     Ok(example_names)
+}
+
+fn get_lib_names() -> Result<Vec<String>, anyhow::Error> {
+    let sh = Shell::new()?;
+    sh.change_dir(root_dir().join("libs"));
+    let output = cmd!(sh, "ls").read()?;
+    let lib_names = output.split("\n").map(|s| s.to_string()).collect::<Vec<_>>();
+    Ok(lib_names)
 }
 
 fn exec_mightybuga_bsc_example(example_name: String) -> Result<(), anyhow::Error> {
@@ -49,6 +75,12 @@ fn exec_mightybuga_bsc_example(example_name: String) -> Result<(), anyhow::Error
     Ok(())
 }
 
+fn exec_test_lib(lib_name: &&str) -> Result<(), anyhow::Error> {
+    let sh = Shell::new()?;
+    sh.change_dir(root_dir().join("libs").join(lib_name));
+    cmd!(sh, "cargo test").run()?;
+    Ok(())
+}
 
 fn root_dir() -> PathBuf {
     let mut xtask_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
