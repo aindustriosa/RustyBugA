@@ -34,7 +34,7 @@ sudo openocd -f openocd.cfg
 ```
 and:
 ```commandline
-cargo xtask mightybuga_bsc example blink
+cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
 ```
 
 ### Use GDB to flash and start running the bin
