@@ -1,35 +1,47 @@
 // A simple logging library for embedded Rust
+#![no_std]
+extern crate alloc;
+
+use core::convert::Infallible;
 
 use embedded_hal::blocking::serial::Write;
 use nb::block;
 
 pub struct Logger<'a> {
-    pub uart: &'a mut dyn Write<u8, Error = nb::Error<()>>,
+    pub uart: &'a mut dyn Write<u8, Error = Infallible>,
 }
 
 impl<'a> Logger<'a> {
-    pub fn new(uart: &'a mut dyn Write<u8, Error = nb::Error<()>>) -> Self {
+    pub fn new(uart: &'a mut dyn Write<u8, Error = Infallible>) -> Self {
         Logger { uart }
     }
 
     pub fn log(&mut self, s: &str) {
         for c in s.chars() {
-            block!(self.uart.bwrite_all(&[c as u8])).unwrap();
+            block!(match self.uart.bwrite_all(&[c as u8]) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(nb::Error::Other(())),
+            })
+            .unwrap();
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use alloc::string::String;
+
+    use core::convert::Infallible;
+
     use crate::Logger;
 
-    // mock of embedded_hal::blocking::serial::Write that just writes to a string
+    // mock of embedded_hal::blocking::serial::Write that just writes to a char vector
     struct MockWriter {
         s: String,
     }
 
     impl embedded_hal::blocking::serial::Write<u8> for MockWriter {
-        type Error = nb::Error<()>;
+        type Error = Infallible;
 
         fn bwrite_all(&mut self, s: &[u8]) -> Result<(), Self::Error> {
             for c in s {
@@ -56,7 +68,6 @@ mod tests {
     #[test]
     fn test_simple() {
         // Just a simple test to make sure the test framework is working
-        println!("Hi 42!");
         assert_eq!(true, true);
     }
 
