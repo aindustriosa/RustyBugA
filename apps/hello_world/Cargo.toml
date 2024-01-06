@@ -1,0 +1,20 @@
+[package]
+name = "hello_world"
+version = "0.1.0"
+authors = ["Jorge Muñoz <punkto@gmail.com>"]
+description = "Basic app that uses libs and BSC to print something and make demos"
+categories = ["embedded", "no-std"]
+edition = "2021"
+
+[dependencies]
+mightybuga_bsc = { path = "../../mightybuga_bsc" }
+panic-halt = "0.2.0"
+
+embedded-alloc = "0.5.1"
+
+logging = { path = "../../libs/logging" }
+
+[profile.release]
+codegen-units = 1 # better optimizations
+debug = true # symbols are nice and they don't increase the size on Flash
+lto = true # better optimizations

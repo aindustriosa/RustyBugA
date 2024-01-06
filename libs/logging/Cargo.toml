@@ -1,0 +1,9 @@
+[package]
+name = "logging"
+version = "0.1.0"
+authors = ["Jorge Muñoz"]
+edition = "2021"
+
+[dependencies]
+embedded-hal = "0.2.7"
+nb = "1.1.0"
