@@ -1,4 +1,9 @@
 // Example of a serial echo program using the mightybuga_bsc crate
+//
+// This example echoes back characters received on the UART.
+//
+// Used Hardware:
+// The board exposes a single LED on pin PC13 and a UART on pins PA9 and PA10.
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
