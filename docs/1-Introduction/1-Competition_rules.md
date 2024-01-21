@@ -20,6 +20,10 @@ The [Open Software and Hardware Demonstration at A Coruña](https://oshwdem.org/
 
 You can find some videos of these competitions at the [Bricolabs Youtube page](https://www.youtube.com/@BricoLabs).
 
+## Malakabot rules
+
+Same as OSHWDem. [rules](http://malakabot.com/wp-content/uploads/2022/12/02.Velocistas.pdf)
+
 ## Other variants
 
 ### Liga española de robótica
