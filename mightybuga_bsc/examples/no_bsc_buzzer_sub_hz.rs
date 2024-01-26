@@ -17,11 +17,15 @@
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use core::time::Duration;
 
 use panic_halt as _;
 
-use stm32f1xx_hal::{pac, prelude::*, serial::*, timer::Channel};
+use stm32f1xx_hal::{
+    pac::{self},
+    prelude::*,
+    serial::*,
+    timer::Channel,
+};
 
 use cortex_m_rt::entry;
 use nb::block;
@@ -36,13 +40,24 @@ fn main() -> ! {
     // Take ownership over the raw flash and rcc devices and convert them into the corresponding
     // HAL structs
     let mut flash = dp.FLASH.constrain();
+
+    // 1. Enable the peripheral clock in the RCC register
+    dp.RCC.apb1enr.write(|w| w.tim3en().set_bit());
+
     let rcc = dp.RCC.constrain();
 
     let mut afio = dp.AFIO.constrain();
 
     // Freeze the configuration of all the clocks in the system and store the frozen frequencies in
     // `clocks`
-    let clocks = rcc.cfgr.freeze(&mut flash.acr);
+    let clocks = rcc
+        .cfgr
+        .use_hse(8.MHz())
+        .sysclk(72.MHz())
+        .freeze(&mut flash.acr);
+    // PAC level configuration at https://github.com/apollolabsdev/stm32-nucleo-f401re/blob/main/PAC%20Examples/sys_clocks/src/main.rs
+
+    //let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
     // create a delay abstraction based on SysTick
     let mut delay = cp.SYST.delay(&clocks);
@@ -90,37 +105,41 @@ fn main() -> ! {
 
     let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
 
-    // Configure gpio B pin 4 as a push-pull output. The `crh` register is passed to the function
-    // in order to configure the port. For pins 0-7, crl should be passed instead.
+    // Configure gpio B pin 4 as a push-pull output. The `crl` register is passed to the function
+    // in order to configure the port. For pins 8-15, crh should be passed instead.
     let buzzer = pb4.into_alternate_push_pull(&mut gpiob.crl);
-    let p1 = gpiob.pb5.into_alternate_push_pull(&mut gpiob.crl);
-
-    let pins = (buzzer, p1); // I need to declare more than one here, why?
 
     // Configure the PWD peripheral
-    let mut pwm = dp.TIM3.pwm_hz(pins, &mut afio.mapr, 1.Hz(), &clocks);
+    let psc = 70;
+    let arr = 2903;
 
-    pwm.enable(Channel::C1);
+    // Configure the PWD peripheral at PAC level:
 
-    let max = pwm.get_max_duty();
-    pwm.set_duty(Channel::C1, max / 2);
+    // Set timer 3 mode to no divisor (72MHz), Edge-aligned, up-counting, 
+    // enable Auto-Reload Buffering, continous mode, disable timer.
+    dp.TIM3.cr1.write(|w| w.arpe().set_bit().cms().bits(0b00).dir().clear_bit().opm().clear_bit().cen().clear_bit());
+    // set timer 3 prescaler to 70
+    dp.TIM3.psc.write(|w| w.psc().bits(psc));
+    // set timer 3 auto-reload register to 2903
+    dp.TIM3.arr.write(|w| w.arr().bits(arr));
+    // Timer Set Output Compare Mode to PWM Mode 1
+    dp.TIM3.ccmr1_output().write(|w| w.oc1m().pwm_mode1());
+    // enable the channel from TIMx capture/compare enable register
+    dp.TIM3.ccer.write(|w| w.cc1e().set_bit());
+    // Set duty cycle to 50% for channel 1
+    dp.TIM3.ccr1().write(|w| w.ccr().bits(u16::MAX / 2));
 
-    
-    //let note = Duration::from_nanos(10000000 / 440);
-    //pwm.set_period(note);
-    //pwm.TIM3.set_prescaler(70);
-    //pwm.TIM3.set_autoreload(62023);
-    let (mut c1, _c2) = pwm.split();
-
-    delay.delay_ms(2 * 500_u32);
-
-    let s = b"note played\r\n";
-    let _ = s.iter().map(|c| block!(tx.write(*c))).last();
-    led.toggle();
-
-    pwm.set_duty(Channel::C1, 0);
+    // Enable timer (note that write resets the not set bits, so we need to use modify here)
+    dp.TIM3.cr1.modify(|_, w| w.cen().set_bit());
 
     loop {
-        delay.delay_ms(100_u16);
+        delay.delay_ms(1000_u16);
+        // print hello
+        let s = b"Hello, world!\r\n";
+        let _ = s.iter().map(|c| block!(tx.write(*c))).last();
+        // toggle led
+        led.set_high();
+        delay.delay_ms(1000_u16);
+        led.set_low();
     }
 }

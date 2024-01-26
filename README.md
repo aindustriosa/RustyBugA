@@ -25,6 +25,12 @@ mkdir /home/$USER/arm-gcc/
 tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
 ```
 
+## code docs
+
+```
+cargo doc --open
+```
+
 ## Flashing
 Check what runner you have uncommented in .cargo/config:
 ###
