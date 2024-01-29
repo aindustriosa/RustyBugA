@@ -10,8 +10,9 @@ use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
 
-mod engine;
-mod motor;
+// These are public just to make the code testeable from the sub-crate.
+pub mod engine;
+pub mod motor;
 
 pub use crate::hal::*;
 

@@ -19,10 +19,10 @@ impl<A: MotorController, B: MotorController> Engine<A, B> {
     }
 
     pub fn backward(&mut self, speed: i16) {
-        self.left.stop();
-        self.left.set_speed(speed);
-        self.right.stop();
-        self.right.set_speed(speed);
+        self.left.start();
+        self.left.set_speed(0 - speed);
+        self.right.start();
+        self.right.set_speed(0 - speed);
     }
 
     pub fn left(&mut self, speed: i16, delta: i16) {

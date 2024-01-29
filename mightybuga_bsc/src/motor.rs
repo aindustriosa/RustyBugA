@@ -1,5 +1,6 @@
 use embedded_hal::digital::v2::OutputPin;
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum MotorState {
     Start,
     Stop,

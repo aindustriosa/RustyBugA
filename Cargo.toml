@@ -4,6 +4,7 @@ members = [
   "mightybuga_bsc",
   "libs/logging",
   "apps/hello_world",
+  "tests"
 ]
 
 resolver = "2"
