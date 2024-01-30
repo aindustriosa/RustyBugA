@@ -44,10 +44,8 @@ jobs:
 
       - name: Build
         run: |
-          cd mightybuga_bsc
-          cargo build
+          cargo xtask mightybuga_bsc build
 
       - name: test
         run: |
-          cd tests/
-          cargo test
+          cargo xtask test
