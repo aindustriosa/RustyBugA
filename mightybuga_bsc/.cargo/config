@@ -1,14 +1,15 @@
 [target.thumbv7m-none-eabi]
-# uncomment ONE of these three option to make `cargo run` start a GDB session
-# which option to pick depends on your system
-# runner = "arm-none-eabi-gdb -q -x openocd.gdb"
-#runner = "gdb-multiarch -q -x openocd.gdb"
-#runner = "gdb-multiarch -q -x openocd_just_flash_and_run.gdb"
+# Option program the board and start a GDB session for debugging. You need
+# OpenOCD installed for this to work. Run `openocd` in a separate terminal
+# before running `cargo run` using 'openocd -f openocd.cfg'
+#runner = "gdb-multiarch -q -x openocd_debug.gdb"
+
+# Option to flash the program onto the board using just OpenOCD
 runner = "./flash.sh"
 
 rustflags = [
   # LLD (shipped with the Rust toolchain) is used as the default linker
-  "-C", "link-arg=-Tlink.x",
+  "-C", "link-arg=-Tlink.x", "-g",
 
   # if you run into problems with LLD switch to the GNU linker by commenting out
   # this line

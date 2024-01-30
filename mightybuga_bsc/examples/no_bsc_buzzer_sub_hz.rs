@@ -24,11 +24,51 @@ use stm32f1xx_hal::{
     pac::{self},
     prelude::*,
     serial::*,
-    timer::Channel,
 };
 
 use cortex_m_rt::entry;
 use nb::block;
+
+// Note struct defines the prescaler and counter values for a given note
+struct Note {
+    prescaler: u16,
+    counter: u16,
+}
+
+// Notes are defined as constants
+// Here are the notes for the C major scale
+const C: Note = Note {
+    prescaler: 70,
+    counter: 2052,
+};
+const D: Note = Note {
+    prescaler: 70,
+    counter: 1828,
+};
+const E: Note = Note {
+    prescaler: 70,
+    counter: 1629,
+};
+const F: Note = Note {
+    prescaler: 70,
+    counter: 1537,
+};
+const G: Note = Note {
+    prescaler: 70,
+    counter: 1369,
+};
+const A: Note = Note {
+    prescaler: 70,
+    counter: 1220,
+};
+const B: Note = Note {
+    prescaler: 70,
+    counter: 1087,
+};
+const C2: Note = Note {
+    prescaler: 70,
+    counter: 1026,
+};
 
 #[entry]
 fn main() -> ! {
@@ -41,8 +81,8 @@ fn main() -> ! {
     // HAL structs
     let mut flash = dp.FLASH.constrain();
 
-    // 1. Enable the peripheral clock in the RCC register
-    dp.RCC.apb1enr.write(|w| w.tim3en().set_bit());
+    // Enable the timer 3 clock in the RCC register (we net to do this before the constrain)
+    dp.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
 
     let rcc = dp.RCC.constrain();
 
@@ -55,9 +95,6 @@ fn main() -> ! {
         .use_hse(8.MHz())
         .sysclk(72.MHz())
         .freeze(&mut flash.acr);
-    // PAC level configuration at https://github.com/apollolabsdev/stm32-nucleo-f401re/blob/main/PAC%20Examples/sys_clocks/src/main.rs
-
-    //let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
     // create a delay abstraction based on SysTick
     let mut delay = cp.SYST.delay(&clocks);
@@ -104,40 +141,66 @@ fn main() -> ! {
     let mut gpiob = dp.GPIOB.split();
 
     let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
+    // Remap TIM3
+    afio.mapr
+        .modify_mapr(|r, w| unsafe { w.tim3_remap().bits(0b10) });
 
     // Configure gpio B pin 4 as a push-pull output. The `crl` register is passed to the function
     // in order to configure the port. For pins 8-15, crh should be passed instead.
     let buzzer = pb4.into_alternate_push_pull(&mut gpiob.crl);
 
-    // Configure the PWD peripheral
-    let psc = 70;
-    let arr = 2903;
-
     // Configure the PWD peripheral at PAC level:
 
-    // Set timer 3 mode to no divisor (72MHz), Edge-aligned, up-counting, 
+    // Set timer 3 mode to no divisor (72MHz), Edge-aligned, up-counting,
     // enable Auto-Reload Buffering, continous mode, disable timer.
-    dp.TIM3.cr1.write(|w| w.arpe().set_bit().cms().bits(0b00).dir().clear_bit().opm().clear_bit().cen().clear_bit());
-    // set timer 3 prescaler to 70
-    dp.TIM3.psc.write(|w| w.psc().bits(psc));
-    // set timer 3 auto-reload register to 2903
-    dp.TIM3.arr.write(|w| w.arr().bits(arr));
+    dp.TIM3.cr1.write(|w| {
+        w.arpe()
+            .set_bit()
+            .cms()
+            .bits(0b00)
+            .dir()
+            .clear_bit()
+            .opm()
+            .clear_bit()
+            .cen()
+            .clear_bit()
+    });
+
     // Timer Set Output Compare Mode to PWM Mode 1
     dp.TIM3.ccmr1_output().write(|w| w.oc1m().pwm_mode1());
     // enable the channel from TIMx capture/compare enable register
     dp.TIM3.ccer.write(|w| w.cc1e().set_bit());
+
+    // Set the prescaler for note C
+    dp.TIM3.psc.write(|w| w.psc().bits(C.prescaler));
+    // Set the auto-reload value for note C
+    dp.TIM3.arr.write(|w| w.arr().bits(C.counter));
     // Set duty cycle to 50% for channel 1
-    dp.TIM3.ccr1().write(|w| w.ccr().bits(u16::MAX / 2));
+    dp.TIM3.ccr1().write(|w| w.ccr().bits(C.counter / 2));
 
     // Enable timer (note that write resets the not set bits, so we need to use modify here)
     dp.TIM3.cr1.modify(|_, w| w.cen().set_bit());
 
+    // make a array of notes
+    let notes = &[C, D, E, F, G, A, B, C2];
+
+    // loop over the notes
+    for note in notes.iter() {
+        // Set the prescaler for the note
+        dp.TIM3.psc.write(|w| w.psc().bits(note.prescaler));
+        // Set the auto-reload value for the note
+        dp.TIM3.arr.write(|w| w.arr().bits(note.counter));
+        // Set duty cycle to 50% for channel 1
+        dp.TIM3.ccr1().write(|w| w.ccr().bits(note.counter / 2));
+        // wait for 1 second
+        delay.delay_ms(1000_u16);
+    }
+
+    // stop the timer
+    dp.TIM3.cr1.modify(|_, w| w.cen().clear_bit());
+
     loop {
         delay.delay_ms(1000_u16);
-        // print hello
-        let s = b"Hello, world!\r\n";
-        let _ = s.iter().map(|c| block!(tx.write(*c))).last();
-        // toggle led
         led.set_high();
         delay.delay_ms(1000_u16);
         led.set_low();
