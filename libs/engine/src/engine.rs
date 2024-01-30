@@ -12,30 +12,30 @@ impl<A: MotorController, B: MotorController> Engine<A, B> {
     }
 
     pub fn forward(&mut self, speed: i16) {
-        self.left.start();
+        self.left.forward();
         self.left.set_speed(speed);
-        self.right.start();
+        self.right.forward();
         self.right.set_speed(speed);
     }
 
     pub fn backward(&mut self, speed: i16) {
-        self.left.start();
-        self.left.set_speed(0 - speed);
-        self.right.start();
-        self.right.set_speed(0 - speed);
+        self.left.backward();
+        self.left.set_speed(speed);
+        self.right.backward();
+        self.right.set_speed(speed);
     }
 
     pub fn left(&mut self, speed: i16, delta: i16) {
-        self.left.start();
+        self.left.forward();
         self.left.set_speed(speed - delta);
-        self.right.start();
+        self.right.forward();
         self.right.set_speed(speed);
     }
 
     pub fn right(&mut self, speed: i16, delta: i16) {
-        self.left.start();
+        self.left.forward();
         self.left.set_speed(speed);
-        self.right.start();
+        self.right.forward();
         self.right.set_speed(speed - delta);
     }
 
@@ -62,10 +62,6 @@ mod tests {
       }
 
     }
-    // #[test]
-    // fn validate_test() {
-    //     assert_eq!(true, true);
-    // }
 
     #[allow(dead_code)]
     fn get_motors() -> (MockFakeMotor, MockFakeMotor) {
@@ -77,14 +73,14 @@ mod tests {
         // given
         let (mut left, mut right) = get_motors();
         left.expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         left.expect_set_speed().times(1).returning(|_| ());
 
         right
             .expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         right.expect_set_speed().times(1).returning(|_| ());
@@ -99,22 +95,22 @@ mod tests {
         // given
         let (mut left, mut right) = get_motors();
         left.expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Backward))
             .times(1)
             .returning(|_| ());
         left.expect_set_speed()
-            .with(eq(-10))
+            .with(eq(10))
             .times(1)
             .returning(|_| ());
 
         right
             .expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Backward))
             .times(1)
             .returning(|_| ());
         right
             .expect_set_speed()
-            .with(eq(-10))
+            .with(eq(10))
             .times(1)
             .returning(|_| ());
 
@@ -128,7 +124,7 @@ mod tests {
         // given
         let (mut left, mut right) = get_motors();
         left.expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         left.expect_set_speed()
@@ -138,7 +134,7 @@ mod tests {
 
         right
             .expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         right
@@ -157,7 +153,7 @@ mod tests {
         // given
         let (mut left, mut right) = get_motors();
         left.expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         left.expect_set_speed()
@@ -167,7 +163,7 @@ mod tests {
 
         right
             .expect_set_state()
-            .with(eq(MotorState::Start))
+            .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
         right

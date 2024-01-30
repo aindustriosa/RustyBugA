@@ -2,40 +2,54 @@ use embedded_hal::digital::v2::OutputPin;
 
 #[derive(PartialEq, Debug)]
 pub enum MotorState {
-    Start,
-    Stop,
+    Forward,
+    Backward,
 }
 
 pub trait MotorController {
     fn set_state(&mut self, state: MotorState);
     fn set_speed(&mut self, speed: i16);
 
-    fn start(&mut self) {
-        self.set_state(MotorState::Start);
+    fn forward(&mut self) {
+        self.set_state(MotorState::Forward);
+    }
+
+    fn backward(&mut self) {
+        self.set_state(MotorState::Backward);
     }
 
     fn stop(&mut self) {
-        self.set_state(MotorState::Stop);
+        self.set_speed(0);
     }
 }
 
 // This is an struct to handle all the options regarding a motor.
-pub struct Motor<T: OutputPin> {
-    pin: T,
+pub struct Motor<A: OutputPin, B: OutputPin> {
+    action_pin: A,
+    direction_pin: B,
     // @TODO: I guess that motor has a PWM pin to set the speed
 }
 
-impl<T: OutputPin> Motor<T> {
-    pub fn new(pin: T) -> Self {
-        Motor { pin }
+impl<A: OutputPin, B: OutputPin> Motor<A, B> {
+    pub fn new(action_pin: A, direction_pin: B) -> Self {
+        Motor {
+            action_pin,
+            direction_pin,
+        }
     }
 }
 
-impl<T: OutputPin> MotorController for Motor<T> {
+impl<A: OutputPin, B: OutputPin> MotorController for Motor<A, B> {
     fn set_state(&mut self, state: MotorState) {
-        let _ = match state {
-            MotorState::Stop => self.pin.set_low(),
-            MotorState::Start => self.pin.set_high(),
+        match state {
+            MotorState::Backward => {
+                let _ = self.action_pin.set_low();
+                let _ = self.direction_pin.set_high();
+            }
+            MotorState::Forward => {
+                let _ = self.action_pin.set_high();
+                let _ = self.direction_pin.set_low();
+            }
         };
     }
 
@@ -61,26 +75,40 @@ mod tests {
     }
 
     #[test]
-    fn test_motor_start() {
+    fn test_motor_forward() {
         // given
-        let mut mock = MockFakePin::new();
-        mock.expect_set_low().times(0).returning(|| Ok(()));
-        mock.expect_set_high().times(1).returning(|| Ok(()));
+        let mut action_pin = MockFakePin::new();
+        action_pin.expect_set_low().times(0).returning(|| Ok(()));
+        action_pin.expect_set_high().times(1).returning(|| Ok(()));
+
+        let mut direction_pin = MockFakePin::new();
+        direction_pin.expect_set_low().times(1).returning(|| Ok(()));
+        direction_pin
+            .expect_set_high()
+            .times(0)
+            .returning(|| Ok(()));
 
         // when
-        let mut motor = Motor::new(mock);
-        motor.start();
+        let mut motor = Motor::new(action_pin, direction_pin);
+        motor.forward();
     }
 
     #[test]
-    fn test_motor_stop() {
+    fn test_motor_backward() {
         // given
-        let mut mock = MockFakePin::new();
-        mock.expect_set_low().times(1).returning(|| Ok(()));
-        mock.expect_set_high().times(0).returning(|| Ok(()));
+        let mut action_pin = MockFakePin::new();
+        action_pin.expect_set_low().times(1).returning(|| Ok(()));
+        action_pin.expect_set_high().times(0).returning(|| Ok(()));
+
+        let mut direction_pin = MockFakePin::new();
+        direction_pin.expect_set_low().times(0).returning(|| Ok(()));
+        direction_pin
+            .expect_set_high()
+            .times(1)
+            .returning(|| Ok(()));
 
         // when
-        let mut motor = Motor::new(mock);
-        motor.stop();
+        let mut motor = Motor::new(action_pin, direction_pin);
+        motor.backward();
     }
 }
