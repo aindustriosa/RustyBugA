@@ -10,9 +10,8 @@ use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
 
-// These are public just to make the code testeable from the sub-crate.
-pub mod engine;
-pub mod motor;
+use engine::engine::Engine;
+use engine::motor::Motor;
 
 pub use crate::hal::*;
 
@@ -69,11 +68,11 @@ impl Mightybuga_BSC {
         // @TODO:
         // These pins are incorrrect, need to be validated witht the right hardware
         // I guess that a PWM pin should be here to control the motor's ESC
-        let motor_left = motor::Motor::new(gpioc.pc10.into_push_pull_output(&mut gpioc.crh));
-        let motor_right = motor::Motor::new(gpioc.pc9.into_push_pull_output(&mut gpioc.crh));
+        let motor_left = Motor::new(gpioc.pc10.into_push_pull_output(&mut gpioc.crh));
+        let motor_right = Motor::new(gpioc.pc9.into_push_pull_output(&mut gpioc.crh));
 
         // Engine is the struct which contains all the logics regarding the motors
-        let mut engine = engine::Engine::new(motor_left, motor_right);
+        let mut engine = Engine::new(motor_left, motor_right);
         // This is to validate that everything is in place
         engine.forward(10);
         engine.backward(100);

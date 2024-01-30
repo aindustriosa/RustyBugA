@@ -3,8 +3,8 @@ members = [
   "xtask",
   "mightybuga_bsc",
   "libs/logging",
+  "libs/engine",
   "apps/hello_world",
-  "tests"
 ]
 
 resolver = "2"

@@ -17,6 +17,7 @@ panic-halt = "0.2.0"
 
 nb = "1.1.0"
 
+engine = { path = "../libs/engine/" }
 
 [profile.release]
 codegen-units = 1 # better optimizations

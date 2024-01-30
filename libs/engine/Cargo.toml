@@ -1,12 +1,12 @@
 [package]
-name = "tests"
+name = "engine"
 version = "0.1.0"
 edition = "2021"
-authors = ["Eloy Coto <eloy.coto@acalustra.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mightybuga_bsc = { path = "../mightybuga_bsc" }
-mockall = {version = "0.12.1", features = []}
 embedded-hal = "0.2.7"
+
+[dev-dependencies]
+mockall = {version = "0.12.1", features = []}
