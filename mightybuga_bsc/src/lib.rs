@@ -9,6 +9,7 @@ use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
+use hal::timer::Tim2NoRemap;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
@@ -65,11 +66,31 @@ impl Mightybuga_BSC {
         let mut gpioc = dp.GPIOC.split();
         let d1: gpio::Pin<'C', 13, gpio::Output> = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
 
-        // @TODO:
-        // These pins are incorrrect, need to be validated witht the right hardware
-        // I guess that a PWM pin should be here to control the motor's ESC
-        let motor_left = Motor::new(gpioc.pc10.into_push_pull_output(&mut gpioc.crh));
-        let motor_right = Motor::new(gpioc.pc9.into_push_pull_output(&mut gpioc.crh));
+        let mut gpiob = dp.GPIOB.split();
+
+        let pwm_motor_pins = (
+            gpioa.pa0.into_alternate_push_pull(&mut gpioa.crl),
+            gpioa.pa1.into_alternate_push_pull(&mut gpioa.crl),
+        );
+
+        let pwm = dp
+            .TIM2
+            .pwm_hz::<Tim2NoRemap, _, _>(pwm_motor_pins, &mut afio.mapr, 1.kHz(), &clocks)
+            .split();
+
+        let left_motor_channel = pwm.0;
+        let right_motor_channel = pwm.1;
+
+        let motor_left = Motor::new(
+            gpiob.pb10.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb12.into_push_pull_output(&mut gpiob.crh),
+            left_motor_channel,
+        );
+        let motor_right = Motor::new(
+            gpiob.pb9.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb8.into_push_pull_output(&mut gpiob.crh),
+            right_motor_channel,
+        );
 
         // Engine is the struct which contains all the logics regarding the motors
         let mut engine = Engine::new(motor_left, motor_right);

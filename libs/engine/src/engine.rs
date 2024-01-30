@@ -11,28 +11,28 @@ impl<A: MotorController, B: MotorController> Engine<A, B> {
         Engine { left, right }
     }
 
-    pub fn forward(&mut self, speed: i16) {
+    pub fn forward(&mut self, speed: u16) {
         self.left.forward();
         self.left.set_speed(speed);
         self.right.forward();
         self.right.set_speed(speed);
     }
 
-    pub fn backward(&mut self, speed: i16) {
+    pub fn backward(&mut self, speed: u16) {
         self.left.backward();
         self.left.set_speed(speed);
         self.right.backward();
         self.right.set_speed(speed);
     }
 
-    pub fn left(&mut self, speed: i16, delta: i16) {
+    pub fn left(&mut self, speed: u16, delta: u16) {
         self.left.forward();
         self.left.set_speed(speed - delta);
         self.right.forward();
         self.right.set_speed(speed);
     }
 
-    pub fn right(&mut self, speed: i16, delta: i16) {
+    pub fn right(&mut self, speed: u16, delta: u16) {
         self.left.forward();
         self.left.set_speed(speed);
         self.right.forward();

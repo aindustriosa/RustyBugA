@@ -1,14 +1,16 @@
 use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::PwmPin;
 
 #[derive(PartialEq, Debug)]
 pub enum MotorState {
     Forward,
     Backward,
+    Brake,
 }
 
 pub trait MotorController {
     fn set_state(&mut self, state: MotorState);
-    fn set_speed(&mut self, speed: i16);
+    fn set_speed(&mut self, speed: u16);
 
     fn forward(&mut self) {
         self.set_state(MotorState::Forward);
@@ -24,22 +26,23 @@ pub trait MotorController {
 }
 
 // This is an struct to handle all the options regarding a motor.
-pub struct Motor<A: OutputPin, B: OutputPin> {
+pub struct Motor<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> {
     action_pin: A,
     direction_pin: B,
-    // @TODO: I guess that motor has a PWM pin to set the speed
+    pwm: P,
 }
 
-impl<A: OutputPin, B: OutputPin> Motor<A, B> {
-    pub fn new(action_pin: A, direction_pin: B) -> Self {
+impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> Motor<A, B, P> {
+    pub fn new(action_pin: A, direction_pin: B, pwm: P) -> Self {
         Motor {
             action_pin,
             direction_pin,
+            pwm,
         }
     }
 }
 
-impl<A: OutputPin, B: OutputPin> MotorController for Motor<A, B> {
+impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> MotorController for Motor<A, B, P> {
     fn set_state(&mut self, state: MotorState) {
         match state {
             MotorState::Backward => {
@@ -50,10 +53,16 @@ impl<A: OutputPin, B: OutputPin> MotorController for Motor<A, B> {
                 let _ = self.action_pin.set_high();
                 let _ = self.direction_pin.set_low();
             }
+            MotorState::Brake => {
+                let _ = self.action_pin.set_high();
+                let _ = self.direction_pin.set_high();
+            }
         };
     }
 
-    fn set_speed(&mut self, _speed: i16) {}
+    fn set_speed(&mut self, speed: u16) {
+        self.pwm.set_duty(speed);
+    }
 }
 
 #[cfg(test)]
