@@ -1,0 +1,51 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+      - Actions
+  pull_request:
+    branches:
+      - '*'
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install os dependencies
+        run: |
+          sudo apt update
+          sudo apt install libudev-dev -y
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
+
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install dependencies
+        run: |
+          rustup component add llvm-tools-preview
+          rustup target add thumbv7m-none-eabi
+          cargo install cargo-binutils cargo-embed cargo-flash cargo-expand
+          cargo install cargo-generate
+
+      - name: Build
+        run: |
+          cargo xtask mightybuga_bsc build
+
+      - name: test
+        run: |
+          cargo xtask test
