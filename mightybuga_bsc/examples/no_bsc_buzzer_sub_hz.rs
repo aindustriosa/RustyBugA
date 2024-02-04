@@ -151,6 +151,7 @@ fn main() -> ! {
 
     // Configure the PWD peripheral at PAC level:
 
+    let a = dp.TIM3;
     // Set timer 3 mode to no divisor (72MHz), Edge-aligned, up-counting,
     // enable Auto-Reload Buffering, continous mode, disable timer.
     dp.TIM3.cr1.write(|w| {

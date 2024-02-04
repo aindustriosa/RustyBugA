@@ -3,6 +3,7 @@ members = [
   "xtask",
   "mightybuga_bsc",
   "libs/logging",
+  "libs/timer_based_buzzer_interface",
   "apps/hello_world",
 ]
 
