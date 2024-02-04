@@ -45,6 +45,9 @@ pub struct Mightybuga_BSC {
 impl Mightybuga_BSC {
     pub fn take() -> Result<Self, ()> {
         let dp = hal::pac::Peripherals::take().ok_or(())?;
+        // Take ownership over the raw flash and rcc devices and convert them into the corresponding
+        // HAL structs
+        let mut flash = dp.FLASH.constrain();
 
         // We need to enable the clocks here for the peripherals we want to use because the
         // `constrain` frees the `RCC` register proxy.
@@ -58,7 +61,7 @@ impl Mightybuga_BSC {
             .cfgr
             .use_hse(8.MHz())
             .sysclk(72.MHz())
-            .freeze(&mut dp.FLASH.constrain().acr);
+            .freeze(&mut flash.acr);
 
         let cp = cortex_m::Peripherals::take().unwrap();
         let mut delay = cp.SYST.delay(&clocks);

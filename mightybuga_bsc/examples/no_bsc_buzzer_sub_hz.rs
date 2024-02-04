@@ -130,7 +130,7 @@ fn main() -> ! {
     );
 
     // Split the serial struct into a receiving and a transmitting part
-    let (mut tx, mut rx) = serial.split();
+    let (mut tx, mut _rx) = serial.split();
 
     /* Print a nice hello message */
     let s = b"\r\nWellcome to the No BSC buzzer example:\r\n";
@@ -143,15 +143,14 @@ fn main() -> ! {
     let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
     // Remap TIM3
     afio.mapr
-        .modify_mapr(|r, w| unsafe { w.tim3_remap().bits(0b10) });
+        .modify_mapr(|_r, w| unsafe { w.tim3_remap().bits(0b10) });
 
     // Configure gpio B pin 4 as a push-pull output. The `crl` register is passed to the function
     // in order to configure the port. For pins 8-15, crh should be passed instead.
-    let buzzer = pb4.into_alternate_push_pull(&mut gpiob.crl);
+    let _buzzer = pb4.into_alternate_push_pull(&mut gpiob.crl);
 
     // Configure the PWD peripheral at PAC level:
 
-    let a = dp.TIM3;
     // Set timer 3 mode to no divisor (72MHz), Edge-aligned, up-counting,
     // enable Auto-Reload Buffering, continous mode, disable timer.
     dp.TIM3.cr1.write(|w| {

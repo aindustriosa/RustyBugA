@@ -12,7 +12,7 @@ use stm32f1xx_hal::{
 };
 
 // import the necessary from the timer based buzzer interface
-use timer_based_buzzer_interface::TimerBasedBuzzerInterface;
+pub use timer_based_buzzer_interface::TimerBasedBuzzerInterface;
 
 // the struct that represents the timer based buzzer
 pub struct TimerBasedBuzzer {
@@ -62,13 +62,13 @@ impl TimerBasedBuzzer {
 // the implementation of the timer based buzzer interface
 impl TimerBasedBuzzerInterface for TimerBasedBuzzer {
     fn turn_on(&mut self) {
-        // enable the output compare
-        self.timer.ccer.write(|w| w.cc1e().set_bit());
+        // Enable timer (note that write resets the not set bits, so we need to use modify here)
+        self.timer.cr1.modify(|_, w| w.cen().set_bit());
     }
 
     fn turn_off(&mut self) {
-        // disable the output compare
-        self.timer.ccer.write(|w| w.cc1e().clear_bit());
+        // Disable timer (note that write resets the not set bits, so we need to use modify here)
+        self.timer.cr1.modify(|_, w| w.cen().clear_bit());
     }
 
     // The frequennncy to registers formula is given by:
