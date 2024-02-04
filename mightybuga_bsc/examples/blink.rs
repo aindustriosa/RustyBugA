@@ -1,4 +1,7 @@
-//! Blinks the Blue Pill's LED
+// Blinks the Blue Pill's LED
+//
+// Used Hardware:
+// The board exposes a single LED on pin PC13.
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]

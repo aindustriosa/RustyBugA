@@ -1,15 +1,19 @@
-// Application that uses the mightybyga_bsc crate and the logging crate to print
-// a message to the console.
+// Application that uses the mightybyga_bsc crate and libs to demonstrate the RustyBugA board capabilities.
 
 #![no_std]
 #![no_main]
 
-use mightybuga_bsc as board;
-use mightybuga_bsc::prelude::*;
 use panic_halt as _;
 
+use mightybuga_bsc as board;
+use mightybuga_bsc::prelude::*;
+use mightybuga_bsc::timer::SysDelay;
+use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
+use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
+
+use nb::block;
+
 extern crate alloc;
-use crate::alloc::string::ToString;
 
 use embedded_alloc::Heap;
 
@@ -24,6 +28,7 @@ fn main() -> ! {
     let mut delay = board.delay;
     let mut uart = board.uart;
     let mut led_d1 = board.leds.d1;
+    let mut buzzer = board.buzzer;
 
     // Initialize the allocator BEFORE you use it
     {
@@ -35,13 +40,79 @@ fn main() -> ! {
 
     let mut logger = Logger::new(&mut uart.tx);
 
-    let mut i: i32 = 0;
     loop {
-        logger.log("Hello, world! ");
-        logger.log(i.to_string().as_str());
-        logger.log("\r\n");
-        i += 1;
-        led_d1.toggle();
-        delay.delay_ms(1000_u16);
+        // Print the menu
+        print_menu(&mut logger);
+
+        // Read the user input
+        if let Ok(byte) = block!(uart.rx.read()) {
+            // Process the user input
+            match byte {
+                b'1' => {
+                    // Play some notes with the buzzer
+                    play_notes(&mut logger, &mut buzzer, &mut delay);
+                }
+                b'2' => {
+                    // Turn on the LED D1
+                    led_d1.set_high();
+                }
+                b'3' => {
+                    // Turn off the LED D1
+                    led_d1.set_low();
+                }
+                _ => {
+                    // Print the menu
+                    print_menu(&mut logger);
+                }
+            }
+        }
+        // Wait for a while
+        delay.delay(300.millis());
+        // print a dot to the user
+        logger.log(".\r\n");
     }
+}
+
+// function that prints a menu to the user
+fn print_menu(logger: &mut Logger) {
+    logger.log("Menu:\r\n");
+    logger.log("   1. Play some notes with the buzzer\r\n");
+    logger.log("   2. Turn on the LED D1\r\n");
+    logger.log("   3. Turn off the LED D1\r\n");
+    logger.log("   Any other key prints this menu\r\n");
+}
+
+// Note struct defines the prescaler and counter values for a given note
+struct Note {
+    prescaler: u16,
+    counter: u16,
+}
+
+// function that plays some notes with the buzzer
+fn play_notes(logger: &mut Logger, buzzer: &mut TimerBasedBuzzer, delay: &mut SysDelay) {
+    logger.log("Playing some notes with the buzzer\r\n");
+
+    // Define the notes
+    const C: Note = Note {
+        prescaler: 70,
+        counter: 2052,
+    };
+    const D: Note = Note {
+        prescaler: 70,
+        counter: 1828,
+    };
+    const E: Note = Note {
+        prescaler: 70,
+        counter: 1629,
+    };
+
+    // Play the notes
+    buzzer.turn_on();
+    buzzer.change_frequency(C.prescaler, C.counter);
+    delay.delay(300.millis());
+    buzzer.change_frequency(D.prescaler, D.counter);
+    delay.delay(300.millis());
+    buzzer.change_frequency(E.prescaler, E.counter);
+    delay.delay(300.millis());
+    buzzer.turn_off();
 }

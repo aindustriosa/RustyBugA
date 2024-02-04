@@ -1,0 +1,8 @@
+[package]
+name = "timer_based_buzzer_interface"
+description = "Definition of the trait that a time based buzzer must implement"
+version = "0.1.0"
+authors = ["Jorge Muñoz"]
+edition = "2021"
+
+[dependencies]

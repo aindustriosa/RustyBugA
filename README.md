@@ -25,20 +25,18 @@ mkdir /home/$USER/arm-gcc/
 tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
 ```
 
-## Flashing
-Check what runner you have uncommented in .cargo/config:
-###
-You need `runner = "gdb-multiarch -q -x openocd.gdb", start a openocd instance:
-```commandline
-sudo openocd -f openocd.cfg
+## code docs
 ```
-and:
+cargo doc --open
+```
+
+## Flashing
 ```commandline
 cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
 ```
 
-### Use GDB to flash and start running the bin
-You need `runner = "gdb-multiarch -q -x openocd_just_flash_and_run.gdb"`, start a openocd instance:
+### Use GDB debug
+You need `runner = "gdb-multiarch -q -x openocd_debug.gdb"` in mightybuga_bsc/.cargo/config , then start a openocd instance:
 ```commandline
 sudo openocd -f openocd.cfg
 ```
