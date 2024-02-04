@@ -116,24 +116,24 @@ fn exec_mightybuga_bsc_build() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+// Currently, we can only test native binaries here because we use this for CI. This is mainly code in libs.
+// Here we run `cargo test` in each crate in `libs`.
 fn exec_test() -> Result<(), anyhow::Error> {
-    let sh = Shell::new()?;
-    sh.change_dir(root_dir().join("libs"));
-    cmd!(sh, "cargo test").run()?;
-
-    sh.change_dir(root_dir().join("tests"));
-    cmd!(sh, "cargo test").run()?;
+    let lib_names = get_lib_names()?;
+    for lib_name in lib_names {
+        exec_test_lib(&&lib_name)?;
+    }
     Ok(())
 }
 
-fn exec_test_lib(lib_name: &&str) -> Result<(), anyhow::Error> {
+fn exec_test_lib(lib_name: &str) -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("libs").join(lib_name));
     cmd!(sh, "cargo test").run()?;
     Ok(())
 }
 
-fn exec_run_app_release(app_name: &&str) -> Result<(), anyhow::Error> {
+fn exec_run_app_release(app_name: &str) -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("apps").join(app_name));
     cmd!(sh, "cargo run --release").run()?;
