@@ -15,6 +15,10 @@ cortex-m-semihosting = "0.5.0"
 panic-halt = "0.2.0"
 # panic-semihosting = "0.6.0"
 
+timer_based_buzzer_interface = { path = "../libs/timer_based_buzzer_interface/" }
+
+fugit = "0.3.7"
+
 nb = "1.1.0"
 
 engine = { path = "../libs/engine/" }

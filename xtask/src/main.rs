@@ -25,6 +25,7 @@ fn main() -> Result<(), anyhow::Error> {
             }
             exec_mightybuga_bsc_example(example_name.to_string())
         }
+        ["mightybuga_bsc", "build"] => exec_mightybuga_bsc_build(),
         ["test", "lib", lib_name] => {
             if !lib_names.contains(&lib_name.to_string()) {
                 println!("ERROR: lib name {} is not in lib_names", lib_name);
@@ -32,7 +33,8 @@ fn main() -> Result<(), anyhow::Error> {
                 return Ok(());
             }
             exec_test_lib(lib_name)
-        },
+        }
+        ["test"] => exec_test(),
         ["run", "app", app_name] => {
             if !app_names.contains(&app_name.to_string()) {
                 println!("ERROR: app name {} is not in app_names", app_name);
@@ -40,7 +42,7 @@ fn main() -> Result<(), anyhow::Error> {
                 return Ok(());
             }
             exec_run_app_release(app_name)
-        },
+        }
         _ => {
             print_usage(mightybuga_bsc_example_names, lib_names, app_names);
             Ok(())
@@ -48,11 +50,17 @@ fn main() -> Result<(), anyhow::Error> {
     }
 }
 
-fn print_usage(mightybuga_bsc_example_names: Vec<String>, lib_names: Vec<String>, app_names: Vec<String>) {
+fn print_usage(
+    mightybuga_bsc_example_names: Vec<String>,
+    lib_names: Vec<String>,
+    app_names: Vec<String>,
+) {
     println!("USAGE:");
     for example_name in mightybuga_bsc_example_names {
         println!("\tcargo xtask mightybuga_bsc example {}", example_name);
     }
+    println!("\tcargo xtask mightybuga_bsc build");
+    println!("\tcargo xtask test");
     for lib_name in lib_names {
         println!("\tcargo xtask test lib {}", lib_name);
     }
@@ -76,7 +84,10 @@ fn get_lib_names() -> Result<Vec<String>, anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("libs"));
     let output = cmd!(sh, "ls").read()?;
-    let lib_names = output.split("\n").map(|s| s.to_string()).collect::<Vec<_>>();
+    let lib_names = output
+        .split("\n")
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
     Ok(lib_names)
 }
 
@@ -84,7 +95,10 @@ fn get_app_names() -> Result<Vec<String>, anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("apps"));
     let output = cmd!(sh, "ls").read()?;
-    let app_names = output.split("\n").map(|s| s.to_string()).collect::<Vec<_>>();
+    let app_names = output
+        .split("\n")
+        .map(|s| s.to_string())
+        .collect::<Vec<_>>();
     Ok(app_names)
 }
 
@@ -95,14 +109,31 @@ fn exec_mightybuga_bsc_example(example_name: String) -> Result<(), anyhow::Error
     Ok(())
 }
 
-fn exec_test_lib(lib_name: &&str) -> Result<(), anyhow::Error> {
+fn exec_mightybuga_bsc_build() -> Result<(), anyhow::Error> {
+    let sh = Shell::new()?;
+    sh.change_dir(root_dir().join("mightybuga_bsc"));
+    cmd!(sh, "cargo build").run()?;
+    Ok(())
+}
+
+// Currently, we can only test native binaries here because we use this for CI. This is mainly code in libs.
+// Here we run `cargo test` in each crate in `libs`.
+fn exec_test() -> Result<(), anyhow::Error> {
+    let lib_names = get_lib_names()?;
+    for lib_name in lib_names {
+        exec_test_lib(&&lib_name)?;
+    }
+    Ok(())
+}
+
+fn exec_test_lib(lib_name: &str) -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("libs").join(lib_name));
     cmd!(sh, "cargo test").run()?;
     Ok(())
 }
 
-fn exec_run_app_release(app_name: &&str) -> Result<(), anyhow::Error> {
+fn exec_run_app_release(app_name: &str) -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("apps").join(app_name));
     cmd!(sh, "cargo run --release").run()?;

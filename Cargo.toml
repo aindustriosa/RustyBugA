@@ -4,6 +4,7 @@ members = [
   "mightybuga_bsc",
   "libs/logging",
   "libs/engine",
+  "libs/timer_based_buzzer_interface",
   "apps/hello_world",
 ]
 

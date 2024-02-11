@@ -1,6 +1,8 @@
 # mightyBugA-rust-firmware
 Firmware for the MightyBugA line follower done in Rust programming language
 
+The design files for the main board can be found at: https://github.com/aindustriosa/RustyBugA-board
+
 
 Tested on Ubuntu Linux
 
@@ -25,20 +27,18 @@ mkdir /home/$USER/arm-gcc/
 tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
 ```
 
-## Flashing
-Check what runner you have uncommented in .cargo/config:
-###
-You need `runner = "gdb-multiarch -q -x openocd.gdb", start a openocd instance:
-```commandline
-sudo openocd -f openocd.cfg
+## code docs
 ```
-and:
+cargo doc --open
+```
+
+## Flashing
 ```commandline
 cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
 ```
 
-### Use GDB to flash and start running the bin
-You need `runner = "gdb-multiarch -q -x openocd_just_flash_and_run.gdb"`, start a openocd instance:
+### Use GDB debug
+You need `runner = "gdb-multiarch -q -x openocd_debug.gdb"` in mightybuga_bsc/.cargo/config , then start a openocd instance:
 ```commandline
 sudo openocd -f openocd.cfg
 ```
@@ -69,3 +69,8 @@ Forked from https://cgit.pinealservo.com/BluePill_Rust/blue_pill_base
 
 Other references:
  - https://github.com/punkto/rust_stm32f4_discovery_example/tree/main
+
+
+## Sponsor
+
+Esta actividade está patrocinada pola Xunta de Galicia e pola Axencia Para a Modernización Tecnolóxica (AMTEGA).

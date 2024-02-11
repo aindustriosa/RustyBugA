@@ -16,6 +16,9 @@ use engine::motor::Motor;
 
 pub use crate::hal::*;
 
+pub mod timer_based_buzzer;
+use timer_based_buzzer::TimerBasedBuzzer;
+
 pub mod prelude {
     pub use cortex_m_rt::entry;
     pub use stm32f1xx_hal::prelude::{
@@ -32,22 +35,44 @@ pub struct Leds {
 }
 
 pub struct Mightybuga_BSC {
+    // delay provider
     pub delay: SysDelay,
+    // UART
     pub uart: UART,
+    // LEDs
     pub leds: Leds,
+    // Buzzer
+    pub buzzer: TimerBasedBuzzer,
 }
 
 impl Mightybuga_BSC {
     pub fn take() -> Result<Self, ()> {
         let dp = hal::pac::Peripherals::take().ok_or(())?;
+        // Take ownership over the raw flash and rcc devices and convert them into the corresponding
+        // HAL structs
+        let mut flash = dp.FLASH.constrain();
+
+        // We need to enable the clocks here for the peripherals we want to use because the
+        // `constrain` frees the `RCC` register proxy.
+
+        // Enable the timer 3 clock in the RCC register (we net to do this before the constrain)
+        dp.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
+
         let rcc = dp.RCC.constrain();
-        let clocks = rcc.cfgr.freeze(&mut dp.FLASH.constrain().acr);
+
+        let clocks = rcc
+            .cfgr
+            .use_hse(8.MHz())
+            .sysclk(72.MHz())
+            .freeze(&mut flash.acr);
 
         let cp = cortex_m::Peripherals::take().unwrap();
         let mut delay = cp.SYST.delay(&clocks);
         delay.delay(300.millis());
 
         let mut afio = dp.AFIO.constrain();
+
+        // Serial port configuration
         let mut gpioa = dp.GPIOA.split();
         let tx = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
         let rx = gpioa.pa10;
@@ -63,6 +88,7 @@ impl Mightybuga_BSC {
         );
         let (tx, rx) = serial.split();
 
+        // LED configuration
         let mut gpioc = dp.GPIOC.split();
         let d1: gpio::Pin<'C', 13, gpio::Output> = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
 
@@ -101,10 +127,21 @@ impl Mightybuga_BSC {
         engine.right(10, 5);
         engine.stop();
 
+        // Buzzer configuration
+        let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
+        // Remap TIM3 gpio pin
+        afio.mapr
+            .modify_mapr(|_, w| unsafe { w.tim3_remap().bits(0b10) });
+        let buzzer_pin = pb4.into_alternate_push_pull(&mut gpiob.crl);
+        let buzzer = TimerBasedBuzzer::new(dp.TIM3, buzzer_pin);
+
+        // Return the initialized struct
+
         Ok(Mightybuga_BSC {
             delay,
             uart: UART { rx, tx },
             leds: Leds { d1 },
+            buzzer,
         })
     }
 }
