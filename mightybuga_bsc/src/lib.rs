@@ -9,6 +9,10 @@ use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
+use hal::timer::Tim2NoRemap;
+
+use engine::engine::Engine;
+use engine::motor::Motor;
 
 pub use crate::hal::*;
 
@@ -26,7 +30,6 @@ pub struct UART {
     pub rx: Rx<USART1>,
     pub tx: Tx<USART1>,
 }
-
 pub struct Leds {
     pub d1: gpio::Pin<'C', 13, gpio::Output>,
 }
@@ -89,8 +92,42 @@ impl Mightybuga_BSC {
         let mut gpioc = dp.GPIOC.split();
         let d1: gpio::Pin<'C', 13, gpio::Output> = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
 
-        // Buzzer configuration
         let mut gpiob = dp.GPIOB.split();
+
+        let pwm_motor_pins = (
+            gpioa.pa0.into_alternate_push_pull(&mut gpioa.crl),
+            gpioa.pa1.into_alternate_push_pull(&mut gpioa.crl),
+        );
+
+        let pwm = dp
+            .TIM2
+            .pwm_hz::<Tim2NoRemap, _, _>(pwm_motor_pins, &mut afio.mapr, 1.kHz(), &clocks)
+            .split();
+
+        let left_motor_channel = pwm.0;
+        let right_motor_channel = pwm.1;
+
+        let motor_left = Motor::new(
+            gpiob.pb10.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb12.into_push_pull_output(&mut gpiob.crh),
+            left_motor_channel,
+        );
+        let motor_right = Motor::new(
+            gpiob.pb9.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb8.into_push_pull_output(&mut gpiob.crh),
+            right_motor_channel,
+        );
+
+        // Engine is the struct which contains all the logics regarding the motors
+        let mut engine = Engine::new(motor_left, motor_right);
+        // This is to validate that everything is in place
+        engine.forward(10);
+        engine.backward(100);
+        engine.left(10, 5);
+        engine.right(10, 5);
+        engine.stop();
+
+        // Buzzer configuration
         let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
         // Remap TIM3 gpio pin
         afio.mapr
@@ -99,6 +136,7 @@ impl Mightybuga_BSC {
         let buzzer = TimerBasedBuzzer::new(dp.TIM3, buzzer_pin);
 
         // Return the initialized struct
+
         Ok(Mightybuga_BSC {
             delay,
             uart: UART { rx, tx },
