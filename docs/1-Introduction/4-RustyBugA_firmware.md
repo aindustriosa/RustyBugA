@@ -26,7 +26,15 @@ During the running state, we would like to perform a number of tasks in a constr
 
 ### Line sensing
 The objective of this task is to give a measurement of how close to the center of the line is the robot. In this task, the robot has to:
-- Perform the measurements.
+- Read line sensor's measurements (with different light conditions).
+- Detect differences in the light detected by the individual sensors.
+- Estimate the position of the line.
+
+There are a number of items to consider here:
+- Should we use past measurements?
+- Do all individual sensors have the same sensitivity?
+- Does ambient light influence in the measurements?
+- ...
 
 ### Speed/movement planning
 
