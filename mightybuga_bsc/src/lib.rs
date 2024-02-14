@@ -9,7 +9,7 @@ use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
-use hal::timer::Tim2NoRemap;
+use hal::timer::Tim1NoRemap;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
@@ -94,14 +94,15 @@ impl Mightybuga_BSC {
 
         let mut gpiob = dp.GPIOB.split();
 
+        // Motor configuration (PWM)
         let pwm_motor_pins = (
-            gpioa.pa0.into_alternate_push_pull(&mut gpioa.crl),
-            gpioa.pa1.into_alternate_push_pull(&mut gpioa.crl),
+            gpioa.pa8.into_alternate_push_pull(&mut gpioa.crh),
+            gpioa.pa11.into_alternate_push_pull(&mut gpioa.crh),
         );
 
         let pwm = dp
-            .TIM2
-            .pwm_hz::<Tim2NoRemap, _, _>(pwm_motor_pins, &mut afio.mapr, 1.kHz(), &clocks)
+            .TIM1
+            .pwm_hz(pwm_motor_pins, &mut afio.mapr, 1.kHz(), &clocks)
             .split();
 
         let left_motor_channel = pwm.0;
@@ -122,9 +123,13 @@ impl Mightybuga_BSC {
         let mut engine = Engine::new(motor_left, motor_right);
         // This is to validate that everything is in place
         engine.forward(10);
+        delay.delay(1000.millis());
         engine.backward(100);
+        delay.delay(1000.millis());
         engine.left(10, 5);
+        delay.delay(1000.millis());
         engine.right(10, 5);
+        delay.delay(1000.millis());
         engine.stop();
 
         // Buzzer configuration
