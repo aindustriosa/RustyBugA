@@ -33,5 +33,7 @@ You can find [here](https://www.youtube.com/@ligaderobots) some old videos from 
 ### Japan competitions
 
 Here goes a number of examples of Japanese competitions with videos:
-- [Similar to the Spanish rules](https://www.youtube.com/watch?v=KdNqmxu_V4A)
-- [With markings in the circuit](https://www.youtube.com/watch?v=960e5Q_PhWg) [this one also](https://www.youtube.com/watch?v=uSSDyEhkCK0)
+- [![watch this](https://img.youtube.com/vi/KdNqmxu_V4A/default.jpg)](https://www.youtube.com/watch?v=KdNqmxu_V4A) Similar to the Spanish rules.
+- [![watch this](https://img.youtube.com/vi/960e5Q_PhWg/default.jpg)](https://www.youtube.com/watch?v=960e5Q_PhWg) With markings in the circuit.
+- [![watch this](https://img.youtube.com/vi/uSSDyEhkCK0/default.jpg)](https://www.youtube.com/watch?v=uSSDyEhkCK0) Also with markings in the circuit.
+- [![watch this](https://img.youtube.com/vi/DLc-VknEddc/default.jpg)](https://www.youtube.com/watch?v=DLc-VknEddc) What?!?!??.
