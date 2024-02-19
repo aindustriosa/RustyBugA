@@ -24,6 +24,14 @@ As we will start by a synchronous design, we need a loop that performs in series
 ## Control tasks during the running state
 During the running state, we would like to perform a number of tasks in a constrain period of time. Here are some of them:
 
+### Battery level check
+During this task, the battery voltage is measured. In order to protect the battery, the robot should stop doing power hungry tasks (mostly power the motors and sensors) when the battery is under a threshold.
+
+### User input/output check
+During this task, the robot must check if the user has pressed a button or written something in the CLI.
+
+During this task, the robot can update outputs like LEDs states or music.
+
 ### Line sensing
 The objective of this task is to give a measurement of how close to the center of the line is the robot. In this task, the robot has to:
 - Read line sensor's measurements (with different light conditions).
@@ -36,9 +44,33 @@ There are a number of items to consider here:
 - Does ambient light influence in the measurements?
 - ...
 
-### Speed/movement planning
+### Get current speed
+Using encoders or estimations, get the current speed for each motor.
 
-### motors control
+### Speed/movement planning
+Using the current (and past) measurements, calculate the current state of the robot, like...
+- entering a curve (left or right),
+- leaving a curve,
+- drifting away from the line,
+- lost path,
+- ...
+... and use this information to plan the next step:
+- accelerate (more or less),
+- brake,
+- turn right/left,
+- stop
+
+The output of this task are the new speed objectives for the two motors
+
+### Motors control
+Given the speed objective and the current speed for each motor, in this task the robot must calculate the power that must give to each motor so it can reach the speed objective. As the motors are neither ideal or lineal it is difficult to have a table of PWD duties per speed objective or something like that. More adaptable control methods must be used here, being the most common the PID.
+
+Once calculated, do not forget to apply the update updating the motors torque.
+
+#### PID
+Some resources:
+- https://bricolabs.cc/wiki/guias/siguelineas_pid
+- https://robotresearchlab.com/2019/02/12/how-to-program-a-line-following-robot/
 
 ### More advanced algorithms
 #### Map recording
