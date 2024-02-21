@@ -10,7 +10,9 @@ pub enum MotorState {
 
 pub trait MotorController {
     fn set_state(&mut self, state: MotorState);
-    fn set_speed(&mut self, speed: u16);
+
+    // duty goes from 0 to 65535
+    fn set_duty(&mut self, duty: u16);
 
     fn forward(&mut self) {
         self.set_state(MotorState::Forward);
@@ -21,7 +23,7 @@ pub trait MotorController {
     }
 
     fn stop(&mut self) {
-        self.set_speed(0);
+        self.set_duty(0);
     }
 }
 
@@ -34,18 +36,14 @@ pub struct Motor<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> {
 
 impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> Motor<A, B, P> {
     pub fn new(in_1: A, in_2: B, pwm: P) -> Self {
-        Motor {
-            in_1,
-            in_2,
-            pwm,
-        }
+        Motor { in_1, in_2, pwm }
     }
 }
 
 impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> MotorController for Motor<A, B, P> {
-    // Given that the motor driver is a TB6612FNG (https://www.pololu.com/file/0J86/TB6612FNG.pdf), 
+    // Given that the motor driver is a TB6612FNG (https://www.pololu.com/file/0J86/TB6612FNG.pdf),
     // the following logic is used to control the motor:
-    // 
+    //
     // 1. Forward: in_1 = 0, in_2 = 1
     // 2. Backward: in_1 = 1, in_2 = 0
     // 3. Brake: in_1 = 1, in_2 = 1  # this creates a short circuit, it is not recommended to use it for a long time
@@ -67,8 +65,11 @@ impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> MotorController for Moto
         };
     }
 
-    fn set_speed(&mut self, speed: u16) {
-        self.pwm.set_duty(speed);
+    fn set_duty(&mut self, duty: u16) {
+        // We need to map the duty cycle from 0-65535 to 0-max_duty without loosing precision
+        let max_duty = self.pwm.get_max_duty();
+        let duty = (duty as u32 * max_duty as u32 / 65535) as u16;
+        self.pwm.set_duty(duty);
     }
 }
 
@@ -90,6 +91,21 @@ mod tests {
       }
     }
 
+    mock! {
+      FakePwmPin {}
+
+      impl PwmPin for FakePwmPin {
+        type Duty = u16;
+
+        // Required methods
+        fn enable(&mut self);
+        fn disable(&mut self);
+        fn get_duty(&self) -> u16;
+        fn get_max_duty(&self) -> u16;
+        fn set_duty(&mut self, duty: u16);
+      }
+    }
+
     #[test]
     fn test_motor_forward() {
         // given
@@ -104,8 +120,10 @@ mod tests {
             .times(0)
             .returning(|| Ok(()));
 
+        let pwm_pin = MockFakePwmPin::new();
+
         // when
-        let mut motor = Motor::new(action_pin, direction_pin);
+        let mut motor = Motor::new(action_pin, direction_pin, pwm_pin);
         motor.forward();
     }
 
@@ -123,8 +141,10 @@ mod tests {
             .times(1)
             .returning(|| Ok(()));
 
+        let pwm_pin = MockFakePwmPin::new();
+
         // when
-        let mut motor = Motor::new(action_pin, direction_pin);
+        let mut motor = Motor::new(action_pin, direction_pin, pwm_pin);
         motor.backward();
     }
 }

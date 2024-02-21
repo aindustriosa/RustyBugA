@@ -1,6 +1,7 @@
 #![no_std]
 #![allow(non_camel_case_types)]
 
+use engine::engine::EngineController;
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
@@ -33,7 +34,7 @@ pub struct Leds {
     pub d1: gpio::Pin<'C', 13, gpio::Output>,
 }
 
-pub struct Mightybuga_BSC {
+pub struct Mightybuga_BSC<ENG: EngineController> {
     // delay provider
     pub delay: SysDelay,
     // UART
@@ -42,10 +43,15 @@ pub struct Mightybuga_BSC {
     pub leds: Leds,
     // Buzzer
     pub buzzer: TimerBasedBuzzer,
+    // Engine
+    pub engine: ENG,
 }
 
-impl Mightybuga_BSC {
-    pub fn take() -> Result<Self, ()> {
+impl<ENG: EngineController> Mightybuga_BSC<ENG>
+where
+    ENG: EngineController,
+{
+    pub fn take() -> Result<Mightybuga_BSC<ENG>, ()> {
         let dp = hal::pac::Peripherals::take().ok_or(())?;
         // Take ownership over the raw flash and rcc devices and convert them into the corresponding
         // HAL structs
@@ -111,10 +117,6 @@ impl Mightybuga_BSC {
         left_motor_channel.enable();
         right_motor_channel.enable();
 
-        // set motors duty cycle to 50%
-        left_motor_channel.set_duty(left_motor_channel.get_max_duty() / 2);
-        right_motor_channel.set_duty(right_motor_channel.get_max_duty() / 2);
-
         let motor_left = Motor::new(
             gpiob.pb5.into_push_pull_output(&mut gpiob.crl),
             gpioa.pa12.into_push_pull_output(&mut gpioa.crh),
@@ -128,16 +130,6 @@ impl Mightybuga_BSC {
 
         // Engine is the struct which contains all the logics regarding the motors
         let mut engine = Engine::new(motor_left, motor_right);
-        // This is to validate that everything is in place
-        engine.forward(10);
-        delay.delay(1000.millis());
-        engine.backward(100);
-        delay.delay(1000.millis());
-        engine.left(10, 5);
-        delay.delay(1000.millis());
-        engine.right(10, 5);
-        delay.delay(1000.millis());
-        engine.stop();
 
         // Buzzer configuration
         let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
@@ -154,6 +146,7 @@ impl Mightybuga_BSC {
             uart: UART { rx, tx },
             leds: Leds { d1 },
             buzzer,
+            engine,
         })
     }
 }

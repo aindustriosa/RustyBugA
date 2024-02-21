@@ -6,40 +6,58 @@ pub struct Engine<A: MotorController, B: MotorController> {
     right: B,
 }
 
+pub trait EngineController {
+    fn forward(&mut self, duty: u16);
+    fn backward(&mut self, duty: u16);
+    fn left(&mut self, duty: u16, delta: u16);
+    fn right(&mut self, duty: u16, delta: u16);
+    fn stop(&mut self);
+}
+
 impl<A: MotorController, B: MotorController> Engine<A, B> {
     pub fn new(left: A, right: B) -> Self {
         Engine { left, right }
     }
+}
 
-    pub fn forward(&mut self, speed: u16) {
+impl<A: MotorController, B: MotorController> EngineController for Engine<A, B> {
+    // duty goes from 0 to 65535
+    fn forward(&mut self, duty: u16) {
         self.left.forward();
-        self.left.set_speed(speed);
+        self.left.set_duty(duty);
         self.right.forward();
-        self.right.set_speed(speed);
+        self.right.set_duty(duty);
     }
 
-    pub fn backward(&mut self, speed: u16) {
+    // duty goes from 0 to 65535
+    fn backward(&mut self, duty: u16) {
         self.left.backward();
-        self.left.set_speed(speed);
+        self.left.set_duty(duty);
         self.right.backward();
-        self.right.set_speed(speed);
+        self.right.set_duty(duty);
     }
 
-    pub fn left(&mut self, speed: u16, delta: u16) {
+    // duty goes from 0 to 65535
+    // delta goes from 0 to 65535
+    // if duty is 10 and delta is 5, the left motor will have a duty of 5 and the right motor will have a duty of 10
+    fn left(&mut self, duty: u16, delta: u16) {
         self.left.forward();
-        self.left.set_speed(speed - delta);
+        self.left.set_duty(duty - delta);
         self.right.forward();
-        self.right.set_speed(speed);
+        self.right.set_duty(duty);
     }
 
-    pub fn right(&mut self, speed: u16, delta: u16) {
+    // duty goes from 0 to 65535
+    // delta goes from 0 to 65535
+    // if duty is 10 and delta is 5, the left motor will have a duty of 10 and the right motor will have a duty of 5
+    fn right(&mut self, duty: u16, delta: u16) {
         self.left.forward();
-        self.left.set_speed(speed);
+        self.left.set_duty(duty);
         self.right.forward();
-        self.right.set_speed(speed - delta);
+        self.right.set_duty(duty - delta);
     }
 
-    pub fn stop(&mut self) {
+    fn stop(&mut self) {
         self.left.stop();
         self.right.stop();
     }
@@ -58,7 +76,7 @@ mod tests {
 
       impl MotorController for FakeMotor {
         fn set_state(&mut self, state: MotorState);
-        fn set_speed(&mut self, speed: u16);
+        fn set_duty(&mut self, duty: u16);
       }
 
     }
@@ -76,14 +94,14 @@ mod tests {
             .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
-        left.expect_set_speed().times(1).returning(|_| ());
+        left.expect_set_duty().times(1).returning(|_| ());
 
         right
             .expect_set_state()
             .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
-        right.expect_set_speed().times(1).returning(|_| ());
+        right.expect_set_duty().times(1).returning(|_| ());
 
         // when
         let mut engine = Engine::new(left, right);
@@ -98,7 +116,7 @@ mod tests {
             .with(eq(MotorState::Backward))
             .times(1)
             .returning(|_| ());
-        left.expect_set_speed()
+        left.expect_set_duty()
             .with(eq(10))
             .times(1)
             .returning(|_| ());
@@ -109,7 +127,7 @@ mod tests {
             .times(1)
             .returning(|_| ());
         right
-            .expect_set_speed()
+            .expect_set_duty()
             .with(eq(10))
             .times(1)
             .returning(|_| ());
@@ -127,7 +145,7 @@ mod tests {
             .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
-        left.expect_set_speed()
+        left.expect_set_duty()
             .with(eq(5))
             .times(1)
             .returning(|_| ());
@@ -138,7 +156,7 @@ mod tests {
             .times(1)
             .returning(|_| ());
         right
-            .expect_set_speed()
+            .expect_set_duty()
             .with(eq(10))
             .times(1)
             .returning(|_| ());
@@ -156,7 +174,7 @@ mod tests {
             .with(eq(MotorState::Forward))
             .times(1)
             .returning(|_| ());
-        left.expect_set_speed()
+        left.expect_set_duty()
             .with(eq(10))
             .times(1)
             .returning(|_| ());
@@ -167,7 +185,7 @@ mod tests {
             .times(1)
             .returning(|_| ());
         right
-            .expect_set_speed()
+            .expect_set_duty()
             .with(eq(5))
             .times(1)
             .returning(|_| ());
