@@ -58,7 +58,7 @@ mod tests {
 
       impl MotorController for FakeMotor {
         fn set_state(&mut self, state: MotorState);
-        fn set_speed(&mut self, speed: i16);
+        fn set_speed(&mut self, speed: u16);
       }
 
     }

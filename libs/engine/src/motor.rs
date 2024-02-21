@@ -27,35 +27,42 @@ pub trait MotorController {
 
 // This is an struct to handle all the options regarding a motor.
 pub struct Motor<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> {
-    action_pin: A,
-    direction_pin: B,
+    in_1: A,
+    in_2: B,
     pwm: P,
 }
 
 impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> Motor<A, B, P> {
-    pub fn new(action_pin: A, direction_pin: B, pwm: P) -> Self {
+    pub fn new(in_1: A, in_2: B, pwm: P) -> Self {
         Motor {
-            action_pin,
-            direction_pin,
+            in_1,
+            in_2,
             pwm,
         }
     }
 }
 
 impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> MotorController for Motor<A, B, P> {
+    // Given that the motor driver is a TB6612FNG (https://www.pololu.com/file/0J86/TB6612FNG.pdf), 
+    // the following logic is used to control the motor:
+    // 
+    // 1. Forward: in_1 = 0, in_2 = 1
+    // 2. Backward: in_1 = 1, in_2 = 0
+    // 3. Brake: in_1 = 1, in_2 = 1  # this creates a short circuit, it is not recommended to use it for a long time
+    // 4. Stop: speed = 0
     fn set_state(&mut self, state: MotorState) {
         match state {
             MotorState::Backward => {
-                let _ = self.action_pin.set_low();
-                let _ = self.direction_pin.set_high();
+                let _ = self.in_1.set_high();
+                let _ = self.in_2.set_low();
             }
             MotorState::Forward => {
-                let _ = self.action_pin.set_high();
-                let _ = self.direction_pin.set_low();
+                let _ = self.in_1.set_low();
+                let _ = self.in_2.set_high();
             }
             MotorState::Brake => {
-                let _ = self.action_pin.set_high();
-                let _ = self.direction_pin.set_high();
+                let _ = self.in_1.set_high();
+                let _ = self.in_2.set_high();
             }
         };
     }

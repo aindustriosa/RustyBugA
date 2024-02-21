@@ -9,7 +9,6 @@ use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
-use hal::timer::Tim1NoRemap;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
@@ -94,23 +93,31 @@ impl Mightybuga_BSC {
 
         let mut gpiob = dp.GPIOB.split();
 
-        // Motor configuration (PWM)
+        // Engine/Motors configuration (PWM)
         let pwm_motor_pins = (
             gpioa.pa8.into_alternate_push_pull(&mut gpioa.crh),
             gpioa.pa11.into_alternate_push_pull(&mut gpioa.crh),
         );
 
+        // We set the PWM frequency to 9 kHz so that the motor doesn't make a lot of noise.
         let pwm = dp
             .TIM1
-            .pwm_hz(pwm_motor_pins, &mut afio.mapr, 1.kHz(), &clocks)
+            .pwm_hz(pwm_motor_pins, &mut afio.mapr, 9.kHz(), &clocks)
             .split();
 
-        let left_motor_channel = pwm.0;
-        let right_motor_channel = pwm.1;
+        let mut left_motor_channel = pwm.0;
+        let mut right_motor_channel = pwm.1;
+
+        left_motor_channel.enable();
+        right_motor_channel.enable();
+
+        // set motors duty cycle to 50%
+        left_motor_channel.set_duty(left_motor_channel.get_max_duty() / 2);
+        right_motor_channel.set_duty(right_motor_channel.get_max_duty() / 2);
 
         let motor_left = Motor::new(
-            gpiob.pb10.into_push_pull_output(&mut gpiob.crh),
-            gpiob.pb12.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb5.into_push_pull_output(&mut gpiob.crl),
+            gpioa.pa12.into_push_pull_output(&mut gpioa.crh),
             left_motor_channel,
         );
         let motor_right = Motor::new(
