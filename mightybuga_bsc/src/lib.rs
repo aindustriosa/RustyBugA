@@ -1,7 +1,6 @@
 #![no_std]
 #![allow(non_camel_case_types)]
 
-use engine::engine::EngineController;
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
@@ -13,6 +12,7 @@ use hal::timer::SysDelay;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
+use stm32f1xx_hal::timer::PwmChannel;
 
 pub use crate::hal::*;
 
@@ -34,7 +34,7 @@ pub struct Leds {
     pub d1: gpio::Pin<'C', 13, gpio::Output>,
 }
 
-pub struct Mightybuga_BSC<ENG: EngineController> {
+pub struct Mightybuga_BSC {
     // delay provider
     pub delay: SysDelay,
     // UART
@@ -44,14 +44,22 @@ pub struct Mightybuga_BSC<ENG: EngineController> {
     // Buzzer
     pub buzzer: TimerBasedBuzzer,
     // Engine
-    pub engine: ENG,
+    pub engine: Engine<
+        Motor<
+            gpio::Pin<'B', 5, gpio::Output>,
+            gpio::Pin<'A', 12, gpio::Output>,
+            PwmChannel<TIM1, 0>,
+        >,
+        Motor<
+            gpio::Pin<'B', 9, gpio::Output>,
+            gpio::Pin<'B', 8, gpio::Output>,
+            PwmChannel<TIM1, 3>,
+        >,
+    >,
 }
 
-impl<ENG: EngineController> Mightybuga_BSC<ENG>
-where
-    ENG: EngineController,
-{
-    pub fn take() -> Result<Mightybuga_BSC<ENG>, ()> {
+impl Mightybuga_BSC {
+    pub fn take() -> Result<Self, ()> {
         let dp = hal::pac::Peripherals::take().ok_or(())?;
         // Take ownership over the raw flash and rcc devices and convert them into the corresponding
         // HAL structs
@@ -129,7 +137,7 @@ where
         );
 
         // Engine is the struct which contains all the logics regarding the motors
-        let mut engine = Engine::new(motor_left, motor_right);
+        let engine = Engine::new(motor_left, motor_right);
 
         // Buzzer configuration
         let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);

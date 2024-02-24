@@ -10,6 +10,8 @@ use mightybuga_bsc::prelude::*;
 use panic_halt as _;
 use mightybuga_bsc as board;
 
+use engine::engine::EngineController;
+
 #[entry]
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
