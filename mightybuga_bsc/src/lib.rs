@@ -10,6 +10,10 @@ use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
 
+use engine::engine::Engine;
+use engine::motor::Motor;
+use stm32f1xx_hal::timer::PwmChannel;
+
 pub use crate::hal::*;
 
 pub mod timer_based_buzzer;
@@ -26,7 +30,6 @@ pub struct UART {
     pub rx: Rx<USART1>,
     pub tx: Tx<USART1>,
 }
-
 pub struct Leds {
     pub d1: gpio::Pin<'C', 13, gpio::Output>,
 }
@@ -40,6 +43,19 @@ pub struct Mightybuga_BSC {
     pub leds: Leds,
     // Buzzer
     pub buzzer: TimerBasedBuzzer,
+    // Engine
+    pub engine: Engine<
+        Motor<
+            gpio::Pin<'B', 5, gpio::Output>,
+            gpio::Pin<'A', 12, gpio::Output>,
+            PwmChannel<TIM1, 0>,
+        >,
+        Motor<
+            gpio::Pin<'B', 9, gpio::Output>,
+            gpio::Pin<'B', 8, gpio::Output>,
+            PwmChannel<TIM1, 3>,
+        >,
+    >,
 }
 
 impl Mightybuga_BSC {
@@ -89,8 +105,41 @@ impl Mightybuga_BSC {
         let mut gpioc = dp.GPIOC.split();
         let d1: gpio::Pin<'C', 13, gpio::Output> = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
 
-        // Buzzer configuration
         let mut gpiob = dp.GPIOB.split();
+
+        // Engine/Motors configuration (PWM)
+        let pwm_motor_pins = (
+            gpioa.pa8.into_alternate_push_pull(&mut gpioa.crh),
+            gpioa.pa11.into_alternate_push_pull(&mut gpioa.crh),
+        );
+
+        // We set the PWM frequency to 9 kHz so that the motor doesn't make a lot of noise.
+        let pwm = dp
+            .TIM1
+            .pwm_hz(pwm_motor_pins, &mut afio.mapr, 9.kHz(), &clocks)
+            .split();
+
+        let mut left_motor_channel = pwm.0;
+        let mut right_motor_channel = pwm.1;
+
+        left_motor_channel.enable();
+        right_motor_channel.enable();
+
+        let motor_left = Motor::new(
+            gpiob.pb5.into_push_pull_output(&mut gpiob.crl),
+            gpioa.pa12.into_push_pull_output(&mut gpioa.crh),
+            left_motor_channel,
+        );
+        let motor_right = Motor::new(
+            gpiob.pb9.into_push_pull_output(&mut gpiob.crh),
+            gpiob.pb8.into_push_pull_output(&mut gpiob.crh),
+            right_motor_channel,
+        );
+
+        // Engine is the struct which contains all the logics regarding the motors
+        let engine = Engine::new(motor_left, motor_right);
+
+        // Buzzer configuration
         let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
         // Remap TIM3 gpio pin
         afio.mapr
@@ -99,11 +148,13 @@ impl Mightybuga_BSC {
         let buzzer = TimerBasedBuzzer::new(dp.TIM3, buzzer_pin);
 
         // Return the initialized struct
+
         Ok(Mightybuga_BSC {
             delay,
             uart: UART { rx, tx },
             leds: Leds { d1 },
             buzzer,
+            engine,
         })
     }
 }
