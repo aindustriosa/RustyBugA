@@ -109,34 +109,13 @@ mod tests {
     #[test]
     fn test_motor_forward() {
         // given
-        let mut action_pin = MockFakePin::new();
-        action_pin.expect_set_low().times(0).returning(|| Ok(()));
-        action_pin.expect_set_high().times(1).returning(|| Ok(()));
+        let mut in_1 = MockFakePin::new();
+        in_1.expect_set_low().times(1).returning(|| Ok(()));
+        in_1.expect_set_high().times(0).returning(|| Ok(()));
 
-        let mut direction_pin = MockFakePin::new();
-        direction_pin.expect_set_low().times(1).returning(|| Ok(()));
-        direction_pin
-            .expect_set_high()
-            .times(0)
-            .returning(|| Ok(()));
-
-        let pwm_pin = MockFakePwmPin::new();
-
-        // when
-        let mut motor = Motor::new(action_pin, direction_pin, pwm_pin);
-        motor.forward();
-    }
-
-    #[test]
-    fn test_motor_backward() {
-        // given
-        let mut action_pin = MockFakePin::new();
-        action_pin.expect_set_low().times(1).returning(|| Ok(()));
-        action_pin.expect_set_high().times(0).returning(|| Ok(()));
-
-        let mut direction_pin = MockFakePin::new();
-        direction_pin.expect_set_low().times(0).returning(|| Ok(()));
-        direction_pin
+        let mut in_2 = MockFakePin::new();
+        in_2.expect_set_low().times(0).returning(|| Ok(()));
+        in_2
             .expect_set_high()
             .times(1)
             .returning(|| Ok(()));
@@ -144,7 +123,28 @@ mod tests {
         let pwm_pin = MockFakePwmPin::new();
 
         // when
-        let mut motor = Motor::new(action_pin, direction_pin, pwm_pin);
+        let mut motor = Motor::new(in_1, in_2, pwm_pin);
+        motor.forward();
+    }
+
+    #[test]
+    fn test_motor_backward() {
+        // given
+        let mut in_1 = MockFakePin::new();
+        in_1.expect_set_low().times(0).returning(|| Ok(()));
+        in_1.expect_set_high().times(1).returning(|| Ok(()));
+
+        let mut in_2 = MockFakePin::new();
+        in_2.expect_set_low().times(1).returning(|| Ok(()));
+        in_2
+            .expect_set_high()
+            .times(0)
+            .returning(|| Ok(()));
+
+        let pwm_pin = MockFakePwmPin::new();
+
+        // when
+        let mut motor = Motor::new(in_1, in_2, pwm_pin);
         motor.backward();
     }
 }
