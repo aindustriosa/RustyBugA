@@ -11,6 +11,8 @@ use mightybuga_bsc::timer::SysDelay;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
 
+use engine::engine::EngineController;
+
 use nb::block;
 
 extern crate alloc;
@@ -29,6 +31,7 @@ fn main() -> ! {
     let mut uart = board.uart;
     let mut led_d1 = board.leds.d1;
     let mut buzzer = board.buzzer;
+    let mut engine = board.engine;
 
     // Initialize the allocator BEFORE you use it
     {
@@ -60,6 +63,30 @@ fn main() -> ! {
                     // Turn off the LED D1
                     led_d1.set_low();
                 }
+                b'a' => {
+                    // Move the robot forward
+                    engine.forward(u16::MAX / 4);
+                    delay.delay(1000.millis());
+                    engine.stop();
+                }
+                b's' => {
+                    // Move the robot backward
+                    engine.backward(u16::MAX / 4);
+                    delay.delay(1000.millis());
+                    engine.stop();
+                }
+                b'd' => {
+                    // Turn the robot right
+                    engine.right(u16::MAX / 5, u16::MAX / 10);
+                    delay.delay(1000.millis());
+                    engine.stop();
+                }
+                b'f' => {
+                    // Turn the robot left
+                    engine.left(u16::MAX / 5, u16::MAX / 10);
+                    delay.delay(1000.millis());
+                    engine.stop();
+                }
                 _ => {
                     // Print the menu
                     print_menu(&mut logger);
@@ -79,6 +106,10 @@ fn print_menu(logger: &mut Logger) {
     logger.log("   1. Play some notes with the buzzer\r\n");
     logger.log("   2. Turn on the LED D1\r\n");
     logger.log("   3. Turn off the LED D1\r\n");
+    logger.log("   a. Move the robot forward\r\n");
+    logger.log("   s. Move the robot backward\r\n");
+    logger.log("   d. Turn the robot right\r\n");
+    logger.log("   f. Turn the robot left\r\n");
     logger.log("   Any other key prints this menu\r\n");
 }
 
