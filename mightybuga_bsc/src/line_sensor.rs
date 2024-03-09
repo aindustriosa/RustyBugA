@@ -25,21 +25,23 @@ pub struct LineSensor {
     pub sensor_5: Pin<'A', 5, Analog>,
     pub sensor_6: Pin<'A', 6, Analog>,
     pub sensor_7: Pin<'A', 7, Analog>,
+
+    pub adc: Adc<ADC1>,
 }
 
 impl LineSensor {
-    pub fn get_line_map(&mut self, adc: &mut Adc<ADC1>) -> [u16; 8] {
+    pub fn get_line_map(&mut self) -> [u16; 8] {
         self.led.set_high();
 
         let light_map = [
-            adc.read(&mut self.sensor_0).unwrap(),
-            adc.read(&mut self.sensor_1).unwrap(),
-            adc.read(&mut self.sensor_2).unwrap(),
-            adc.read(&mut self.sensor_3).unwrap(),
-            adc.read(&mut self.sensor_4).unwrap(),
-            adc.read(&mut self.sensor_5).unwrap(),
-            adc.read(&mut self.sensor_6).unwrap(),
-            adc.read(&mut self.sensor_7).unwrap(),
+            self.adc.read(&mut self.sensor_0).unwrap(),
+            self.adc.read(&mut self.sensor_1).unwrap(),
+            self.adc.read(&mut self.sensor_2).unwrap(),
+            self.adc.read(&mut self.sensor_3).unwrap(),
+            self.adc.read(&mut self.sensor_4).unwrap(),
+            self.adc.read(&mut self.sensor_5).unwrap(),
+            self.adc.read(&mut self.sensor_6).unwrap(),
+            self.adc.read(&mut self.sensor_7).unwrap(),
         ];
 
         self.led.set_low();
