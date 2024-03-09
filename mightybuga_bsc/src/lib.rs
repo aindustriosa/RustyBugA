@@ -16,6 +16,7 @@ use engine::motor::Motor;
 use stm32f1xx_hal::timer::PwmChannel;
 
 mod line_sensor;
+use line_sensor::LineSensor;
 
 pub use crate::hal::*;
 
@@ -58,6 +59,9 @@ pub struct Mightybuga_BSC {
     pub btn_1: hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>,
     pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
     pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
+    
+    // Line Sensor Array
+    pub line_sensor: LineSensor,
 }
 
 impl Mightybuga_BSC {
@@ -152,6 +156,21 @@ impl Mightybuga_BSC {
         let btn_1 = hal_button::Button::new(gpiob.pb13.into_pull_down_input(&mut gpiob.crh));
         let btn_2 = hal_button::Button::new(gpioc.pc15.into_pull_down_input(&mut gpioc.crh));
         let btn_3 = hal_button::Button::new(gpioc.pc14.into_pull_down_input(&mut gpioc.crh));
+        
+        // Initialize the line sensor array
+        let line_sensor: LineSensor = LineSensor {
+            led: gpiob.pb1.into_push_pull_output(&mut gpiob.crl),
+            sensor_0: gpioa.pa0.into_analog(&mut gpioa.crl),
+            sensor_1: gpioa.pa1.into_analog(&mut gpioa.crl),
+            sensor_2: gpioa.pa2.into_analog(&mut gpioa.crl),
+            sensor_3: gpioa.pa3.into_analog(&mut gpioa.crl),
+            sensor_4: gpioa.pa4.into_analog(&mut gpioa.crl),
+            sensor_5: gpioa.pa5.into_analog(&mut gpioa.crl),
+            sensor_6: gpioa.pa6.into_analog(&mut gpioa.crl),
+            sensor_7: gpioa.pa7.into_analog(&mut gpioa.crl),
+        };
+
+        // Return the initialized struct
 
         // Return the initialized struct
         Ok(Mightybuga_BSC {
@@ -164,6 +183,7 @@ impl Mightybuga_BSC {
             btn_1: btn_1,
             btn_2: btn_2,
             btn_3: btn_3, 
+            line_sensor
         })
     }
 }
