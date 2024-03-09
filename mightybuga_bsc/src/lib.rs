@@ -15,6 +15,8 @@ use engine::engine::Engine;
 use engine::motor::Motor;
 use stm32f1xx_hal::timer::PwmChannel;
 
+mod line_sensor;
+
 pub use crate::hal::*;
 
 pub mod timer_based_buzzer;
