@@ -14,5 +14,18 @@ There are used 2 extra GPIOs per motor for driver control:
  - In1 PB05
  - In2 PA12
 
+## Line Sensor
+The Line Sensor uses the **ADC1** to read the voltages from the following analog pins:
+- PA0
+- PA1
+- PA2
+- PA3
+- PA4
+- PA5
+- PA6
+- PA7
+
+It also uses the **PB1** pin as an output for the LED in the sensor array.
+
 ## Encoders
 Timer 4
