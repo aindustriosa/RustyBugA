@@ -12,7 +12,7 @@ use crate::hal::{
 /// The LineSensor used to detect the place where the line is located.
 /// It uses 8 analog pins connected to the light intensity sensors, 1 pin for turning on the led in
 /// the sensor array and the ADC1 to read the voltage from the sensors.
-pub struct LineSensor {
+pub struct LightSensorArray {
     /// The output pin used to set the led in the sensor array high
     pub led: Pin<'B', 1, Output>,
 
@@ -29,7 +29,7 @@ pub struct LineSensor {
     pub adc: Adc<ADC1>,
 }
 
-impl LineSensor {
+impl LightSensorArray {
     pub fn get_line_map(&mut self) -> [u16; 8] {
         self.led.set_high();
 
