@@ -16,8 +16,8 @@ use engine::engine::Engine;
 use engine::motor::Motor;
 use stm32f1xx_hal::timer::PwmChannel;
 
-mod line_sensor;
-use line_sensor::LineSensor;
+mod light_sensor_array;
+use light_sensor_array::LightSensorArray;
 
 pub use crate::hal::*;
 
@@ -61,8 +61,8 @@ pub struct Mightybuga_BSC {
     pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
     pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
     
-    // Line Sensor Array
-    pub line_sensor: LineSensor,
+    // Light sensor array
+    pub light_sensor_array: LightSensorArray,
 }
 
 impl Mightybuga_BSC {
@@ -160,7 +160,7 @@ impl Mightybuga_BSC {
         
         // Initialize the line sensor array
         let adc1 = Adc::adc1(dp.ADC1, clocks);
-        let line_sensor: LineSensor = LineSensor {
+        let light_sensor_array = LightSensorArray {
             led: gpiob.pb1.into_push_pull_output(&mut gpiob.crl),
             sensor_0: gpioa.pa0.into_analog(&mut gpioa.crl),
             sensor_1: gpioa.pa1.into_analog(&mut gpioa.crl),
@@ -186,7 +186,7 @@ impl Mightybuga_BSC {
             btn_1: btn_1,
             btn_2: btn_2,
             btn_3: btn_3, 
-            line_sensor
+            light_sensor_array,
         })
     }
 }
