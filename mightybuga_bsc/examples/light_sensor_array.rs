@@ -19,7 +19,7 @@ use nb::block;
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
-    let mut line_sensor = board.line_sensor;
+    let mut light_sensor_array = board.light_sensor_array;
     let mut uart = board.uart;
 
     let mut tx = uart.tx;
@@ -27,7 +27,7 @@ fn main() -> ! {
     loop {
         delay.delay(2000.millis());
 
-        let values = line_sensor.get_line_map();
+        let values = light_sensor_array.get_line_map();
         
         // Print the values of the sensor array separated by new lines.
         values.iter().for_each(|value| {
@@ -42,7 +42,7 @@ fn main() -> ! {
         });
 
         // Separator to prevent confusions when reading the values in the terminal
-        block!(tx.write('-'));
+        block!(tx.write(b'-'));
     }
 }
 
