@@ -28,8 +28,8 @@ use logging::Logger;
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
-    let mut uart = board.uart;
-    let mut led_d1 = board.leds.d1;
+    let mut uart = board.serial;
+    let mut led_d1 = board.led_d1;
     let mut buzzer = board.buzzer;
     let mut engine = board.engine;
 

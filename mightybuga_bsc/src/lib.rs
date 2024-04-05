@@ -26,21 +26,21 @@ pub mod prelude {
     };
 }
 
-pub struct UART {
-    pub rx: Rx<USART1>,
-    pub tx: Tx<USART1>,
-}
-pub struct Leds {
-    pub d1: gpio::Pin<'C', 13, gpio::Output>,
-}
-
 pub struct Mightybuga_BSC {
+    // LEDs
+    pub led_d1: gpio::Pin<'C', 13, gpio::Output>,
+    pub led_d2: gpio::Pin<'B', 12, gpio::Output>,
+    // Buttons
+    pub button_bt1: gpio::Pin<'B', 13, gpio::Input>,
+    pub button_bt2: gpio::Pin<'C', 15, gpio::Input>,
+    pub button_bt3: gpio::Pin<'C', 14, gpio::Input>,
+    // UART
+    pub serial: Serial<
+        USART1, 
+        (gpio::Pin<'A',9, gpio::Alternate>, gpio::Pin<'A', 10, gpio::Input>),
+        >,
     // delay provider
     pub delay: SysDelay,
-    // UART
-    pub uart: UART,
-    // LEDs
-    pub leds: Leds,
     // Buzzer
     pub buzzer: TimerBasedBuzzer,
     // Engine
@@ -85,27 +85,31 @@ impl Mightybuga_BSC {
 
         let mut afio = dp.AFIO.constrain();
 
-        // Serial port configuration
+        // GPIO ports
         let mut gpioa = dp.GPIOA.split();
-        let tx = gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh);
-        let rx = gpioa.pa10;
-        let serial = Serial::new(
+        let mut gpiob = dp.GPIOB.split();
+        let mut gpioc = dp.GPIOC.split();
+
+        // LEDs configuration
+        let d1 = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
+        let d2 = gpiob.pb12.into_push_pull_output(&mut gpiob.crh);
+
+        // Buttons configuration
+        let bt1 = gpiob.pb13.into_floating_input(&mut gpiob.crh);
+        let bt2 = gpioc.pc15.into_floating_input(&mut gpioc.crh);
+        let bt3 = gpioc.pc14.into_floating_input(&mut gpioc.crh);
+
+        // Serial port configuration
+        let serial_uart = Serial::new(
             dp.USART1,
-            (tx, rx),
+            (
+                gpioa.pa9.into_alternate_push_pull(&mut gpioa.crh),
+                gpioa.pa10.into_floating_input(&mut gpioa.crh),
+            ),
             &mut afio.mapr,
-            Config::default()
-                .baudrate(115_200.bps())
-                .wordlength_8bits()
-                .parity_none(),
+            Config::default().baudrate(115_200.bps()),
             &clocks,
         );
-        let (tx, rx) = serial.split();
-
-        // LED configuration
-        let mut gpioc = dp.GPIOC.split();
-        let d1: gpio::Pin<'C', 13, gpio::Output> = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
-
-        let mut gpiob = dp.GPIOB.split();
 
         // Engine/Motors configuration (PWM)
         let pwm_motor_pins = (
@@ -150,9 +154,13 @@ impl Mightybuga_BSC {
         // Return the initialized struct
 
         Ok(Mightybuga_BSC {
+            led_d1: d1,
+            led_d2: d2,
+            button_bt1: bt1,
+            button_bt2: bt2,
+            button_bt3: bt3,
+            serial: serial_uart,
             delay,
-            uart: UART { rx, tx },
-            leds: Leds { d1 },
             buzzer,
             engine,
         })
