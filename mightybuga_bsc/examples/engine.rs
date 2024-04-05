@@ -16,7 +16,7 @@ use engine::engine::EngineController;
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
-    let mut led_d1 = board.leds.d1;
+    let mut led_d1 = board.led_d1;
     let mut engine = board.engine;
 
     engine.forward(u16::MAX / 4);

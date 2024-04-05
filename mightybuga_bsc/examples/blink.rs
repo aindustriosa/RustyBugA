@@ -15,7 +15,7 @@ fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
     let mut led_d1 = board.led_d1;
-    let mut led_d2 = board.led_d1;
+    let mut led_d2 = board.led_d2;
 
     loop {
         delay.delay(200.millis());

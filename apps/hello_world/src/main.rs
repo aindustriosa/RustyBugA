@@ -30,6 +30,7 @@ fn main() -> ! {
     let mut delay = board.delay;
     let mut uart = board.serial;
     let mut led_d1 = board.led_d1;
+    let mut led_d2 = board.led_d2;
     let mut buzzer = board.buzzer;
     let mut engine = board.engine;
 
@@ -62,6 +63,14 @@ fn main() -> ! {
                 b'3' => {
                     // Turn off the LED D1
                     led_d1.set_low();
+                }
+                b'4' => {
+                    // Turn on the LED D1
+                    led_d2.set_high();
+                }
+                b'5' => {
+                    // Turn off the LED D1
+                    led_d2.set_low();
                 }
                 b'a' => {
                     // Move the robot forward
@@ -106,6 +115,8 @@ fn print_menu(logger: &mut Logger) {
     logger.log("   1. Play some notes with the buzzer\r\n");
     logger.log("   2. Turn on the LED D1\r\n");
     logger.log("   3. Turn off the LED D1\r\n");
+    logger.log("   4. Turn on the LED D2\r\n");
+    logger.log("   5. Turn off the LED D2\r\n");
     logger.log("   a. Move the robot forward\r\n");
     logger.log("   s. Move the robot backward\r\n");
     logger.log("   d. Turn the robot right\r\n");
