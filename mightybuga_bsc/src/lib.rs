@@ -30,10 +30,6 @@ pub struct Mightybuga_BSC {
     // LEDs
     pub led_d1: gpio::Pin<'C', 13, gpio::Output>,
     pub led_d2: gpio::Pin<'B', 12, gpio::Output>,
-    // Buttons
-    pub button_bt1: gpio::Pin<'B', 13, gpio::Input>,
-    pub button_bt2: gpio::Pin<'C', 15, gpio::Input>,
-    pub button_bt3: gpio::Pin<'C', 14, gpio::Input>,
     // UART
     pub serial: Serial<
         USART1, 
@@ -94,11 +90,6 @@ impl Mightybuga_BSC {
         let d1 = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
         let d2 = gpiob.pb12.into_push_pull_output(&mut gpiob.crh);
 
-        // Buttons configuration
-        let bt1 = gpiob.pb13.into_floating_input(&mut gpiob.crh);
-        let bt2 = gpioc.pc15.into_floating_input(&mut gpioc.crh);
-        let bt3 = gpioc.pc14.into_floating_input(&mut gpioc.crh);
-
         // Serial port configuration
         let serial_uart = Serial::new(
             dp.USART1,
@@ -156,9 +147,6 @@ impl Mightybuga_BSC {
         Ok(Mightybuga_BSC {
             led_d1: d1,
             led_d2: d2,
-            button_bt1: bt1,
-            button_bt2: bt2,
-            button_bt3: bt3,
             serial: serial_uart,
             delay,
             buzzer,
