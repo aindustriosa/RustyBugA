@@ -5,7 +5,9 @@
 #runner = "gdb-multiarch -q -x openocd_debug.gdb"
 
 # Option to flash the program onto the board using just OpenOCD
-runner = "./flash.sh"
+#runner = "./flash.sh"
+
+runner = "../tools/upload.sh"
 
 rustflags = [
   # LLD (shipped with the Rust toolchain) is used as the default linker

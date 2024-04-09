@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# This script is used to upload the firmware to the board.
+# It is used from `cargo run` when used the apropiate option in .cargo/config (parameter: runner)
+
+# Set the upload programming probe to use
+UPLOAD_PROBE=${UPLOAD_PROBE:-"openocd"}
+
+# set this script directory as the reference directory for relative paths
+export TOOLS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+case $UPLOAD_PROBE in
+
+    "openocd")
+        ${TOOLS_DIR}/openocd/upload.sh $1
+        ;;
+
+    "blackmagic")
+        ${TOOLS_DIR}/blackmagic/upload.sh $1
+        ;;
+
+    *)
+        echo "Unknown upload probe: $UPLOAD_PROBE"
+        exit 1
+        ;;
+esac
+
