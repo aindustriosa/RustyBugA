@@ -29,8 +29,8 @@ pub struct LightSensorArray {
     pub adc: Adc<ADC1>,
 }
 
-impl LightSensorArray {
-    pub fn get_line_map(&mut self) -> [u16; 8] {
+impl light_sensor_array_controller::LightSensorArrayController for LightSensorArray {
+    fn get_light_map(&mut self) -> [u16; 8] {
         self.led.set_high();
 
         let light_map = [

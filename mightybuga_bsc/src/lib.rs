@@ -6,11 +6,11 @@ use hal::gpio::PullDown;
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
 
+use hal::adc::Adc;
 use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
-use hal::adc::Adc;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
@@ -37,9 +37,12 @@ pub struct Mightybuga_BSC {
     pub led_d2: gpio::Pin<'B', 12, gpio::Output>,
     // UART
     pub serial: Serial<
-        USART1, 
-        (gpio::Pin<'A',9, gpio::Alternate>, gpio::Pin<'A', 10, gpio::Input>),
-        >,
+        USART1,
+        (
+            gpio::Pin<'A', 9, gpio::Alternate>,
+            gpio::Pin<'A', 10, gpio::Input>,
+        ),
+    >,
     // delay provider
     pub delay: SysDelay,
     // Buzzer
@@ -60,7 +63,7 @@ pub struct Mightybuga_BSC {
     pub btn_1: hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>,
     pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
     pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
-    
+
     // Light sensor array
     pub light_sensor_array: LightSensorArray,
 }
@@ -157,7 +160,7 @@ impl Mightybuga_BSC {
         let btn_1 = hal_button::Button::new(gpiob.pb13.into_pull_down_input(&mut gpiob.crh));
         let btn_2 = hal_button::Button::new(gpioc.pc15.into_pull_down_input(&mut gpioc.crh));
         let btn_3 = hal_button::Button::new(gpioc.pc14.into_pull_down_input(&mut gpioc.crh));
-        
+
         // Initialize the line sensor array
         let adc1 = Adc::adc1(dp.ADC1, clocks);
         let light_sensor_array = LightSensorArray {
@@ -185,7 +188,7 @@ impl Mightybuga_BSC {
             engine,
             btn_1: btn_1,
             btn_2: btn_2,
-            btn_3: btn_3, 
+            btn_3: btn_3,
             light_sensor_array,
         })
     }
