@@ -17,8 +17,8 @@ use nb::block;
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
-    let mut uart = board.uart;
-    let mut led_d1 = board.leds.d1;
+    let mut uart = board.serial;
+    let mut led_d1 = board.led_d1;
 
     let s = b"\r\nPlease type characters to echo:\r\n";
     let _ = s.iter().map(|c| block!(uart.tx.write(*c))).last();
