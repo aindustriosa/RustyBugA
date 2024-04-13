@@ -1,3 +1,5 @@
+#![no_std]
+
 /// The trait implemented by the light sensor arrays, to get a light map with all the values from
 /// the different sensors from it.
 pub trait LightSensorArrayController {
