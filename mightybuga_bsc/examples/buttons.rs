@@ -17,8 +17,8 @@ use hal_button::ButtonController;
 fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
-    let mut led_d1 = board.leds.d1;
-    let mut led_d2 = board.leds.d2;
+    let mut led_d1 = board.led_d1;
+    let mut led_d2 = board.led_d2;
     let mut btn_1 = board.btn_1;
     let mut btn_2 = board.btn_2;
     let mut btn_3 = board.btn_3;
