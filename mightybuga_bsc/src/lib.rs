@@ -1,6 +1,7 @@
 #![no_std]
 #![allow(non_camel_case_types)]
 
+use hal::gpio::PullDown;
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
@@ -52,6 +53,9 @@ pub struct Mightybuga_BSC {
             PwmChannel<TIM1, 3>,
         >,
     >,
+    pub btn_1: hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>,
+    pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
+    pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
 }
 
 impl Mightybuga_BSC {
@@ -142,8 +146,12 @@ impl Mightybuga_BSC {
         let buzzer_pin = pb4.into_alternate_push_pull(&mut gpiob.crl);
         let buzzer = TimerBasedBuzzer::new(dp.TIM3, buzzer_pin);
 
-        // Return the initialized struct
+        // Button configurations
+        let btn_1 = hal_button::Button::new(gpiob.pb13.into_pull_down_input(&mut gpiob.crh));
+        let btn_2 = hal_button::Button::new(gpioc.pc15.into_pull_down_input(&mut gpioc.crh));
+        let btn_3 = hal_button::Button::new(gpioc.pc14.into_pull_down_input(&mut gpioc.crh));
 
+        // Return the initialized struct
         Ok(Mightybuga_BSC {
             led_d1: d1,
             led_d2: d2,
@@ -151,6 +159,9 @@ impl Mightybuga_BSC {
             delay,
             buzzer,
             engine,
+            btn_1: btn_1,
+            btn_2: btn_2,
+            btn_3: btn_3, 
         })
     }
 }

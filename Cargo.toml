@@ -5,6 +5,7 @@ members = [
   "libs/logging",
   "libs/engine",
   "libs/timer_based_buzzer_interface",
+  "libs/hal_button",
   "apps/hello_world",
 ]
 
