@@ -6,4 +6,4 @@ authors = ["Rafa Couto <caligari@treboada.net>"]
 edition = "2021"
 
 [dependencies]
-embedded-hal = "0.2.4"
+embedded-hal = { version = "0.2.7", features = ["unproven"] }
