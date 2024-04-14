@@ -1,0 +1,8 @@
+[package]
+name = "hal_encoder"
+description = "Abstractions for an encoder controller"
+version = "0.1.0"
+authors = ["Rafa Couto <caligari@treboada.net>"]
+edition = "2021"
+
+[dependencies]
