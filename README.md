@@ -32,37 +32,39 @@ tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-g
 cargo doc --open
 ```
 
-## Flashing
+## Upload the firmware to the MCU
+
 ```commandline
 cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
 ```
 
+Set the environment variable *UPLOAD_TOOL* (default is `openocd`) to use your prefered tool for uploading the firmware to the flash memory of the MCU:
+
+| tools | *UPLOAD_TOOL* | notes |
+|-------|---------------|-------|
+| OpenOCD + STLink-v2 probe | openocd | This is the default. |
+| BlackMagicProbe | blackmagic | *BMP_PORT* variable to set the device where the BMP is connected (default is `/dev/ttyACM0`). |
+
+Example to use BMP:
+
+```sh
+export UPLOAD_TOOL=blackmagic
+cargo xtask run app hello_world
+```
+
 ### Use GDB debug
+
 You need `runner = "gdb-multiarch -q -x openocd_debug.gdb"` in mightybuga_bsc/.cargo/config , then start a openocd instance:
+
 ```commandline
 sudo openocd -f openocd.cfg
 ```
+
 and:
+
 ```commandline
 cargo run
 ```
-### Just use openocd to flash the binary:
-You need `runner = "./flash.sh"` and:
-```commandline
-cargo run
-```
-
-### Unexpected idcode
-The idcode refers to the chip identification. Real STM32F103C8T6s has idcode `0x2ba01477`, the CS32F103C8T6 clone has `0x1ba0147`. If openOCD exits with an error like this:
-```
-Warn : UNEXPECTED idcode: 0x1ba01477
-Error: expected 1 of 1: 0x2ba01477
-```
-Update your chip id in openocd.cfg
-
-References:
- - https://www.eevblog.com/forum/beginners/unexpected-idcode-flashing-bluepill-clone/
- - https://community.platformio.org/t/debugging-of-stm32f103-clone-bluepill-board-wrong-idcode/14635
 
 ## References
 Forked from https://cgit.pinealservo.com/BluePill_Rust/blue_pill_base
