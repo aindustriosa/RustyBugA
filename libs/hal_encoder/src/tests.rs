@@ -30,7 +30,7 @@ impl<const BITS: u8> Default for MockEncoder<BITS> {
 }
 
 impl<const BITS: u8> EncoderController<BITS> for MockEncoder<BITS> {
-    fn read_steps(&self) -> usize {
+    fn steps(&self) -> usize {
         self.steps
     }
 
