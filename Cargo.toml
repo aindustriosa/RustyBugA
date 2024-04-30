@@ -6,7 +6,7 @@ members = [
   "libs/engine",
   "libs/timer_based_buzzer_interface",
   "libs/hal_button",
-  "libs/hal_encoder",
+  "libs/hal_encoder_stm32f1xx",
   "apps/hello_world",
 ]
 

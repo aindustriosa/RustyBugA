@@ -15,7 +15,7 @@ pub trait EncoderController<const BITS: u8> {
     const MSB_MASK : usize = 1 << (BITS - 1);
 
     // This function returns the delta of the step count since the last time this function was called.
-    fn delta(&mut self) -> isize {
+    fn delta(&mut self) -> (isize, isize) {
         let steps = self.steps();
         let last_steps = self.last_steps_ref();
         let mut delta = steps as isize - *last_steps as isize;
@@ -26,7 +26,7 @@ pub trait EncoderController<const BITS: u8> {
             }
         };
         *last_steps = steps;
-        delta
+        (delta, steps as isize)
     }
 }
 
