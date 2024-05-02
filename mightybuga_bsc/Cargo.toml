@@ -23,6 +23,7 @@ nb = "1.1.0"
 
 engine = { path = "../libs/engine/" }
 hal_button = { path = "../libs/hal_button" }
+hal-encoder-stm32f1xx = { path = "../libs/hal_encoder_stm32f1xx" }
 
 [profile.release]
 codegen-units = 1 # better optimizations

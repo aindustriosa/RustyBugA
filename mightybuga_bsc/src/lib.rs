@@ -1,6 +1,8 @@
 #![no_std]
 #![allow(non_camel_case_types)]
 
+use core::ops::Deref;
+
 use hal::gpio::PullDown;
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
@@ -20,6 +22,8 @@ pub use crate::hal::*;
 pub mod timer_based_buzzer;
 use timer_based_buzzer::TimerBasedBuzzer;
 
+pub use hal_encoder_stm32f1xx::tim2_to_tim5::*;
+
 pub mod prelude {
     pub use cortex_m_rt::entry;
     pub use stm32f1xx_hal::prelude::{
@@ -33,9 +37,9 @@ pub struct Mightybuga_BSC {
     pub led_d2: gpio::Pin<'B', 12, gpio::Output>,
     // UART
     pub serial: Serial<
-        USART1, 
+        USART1,
         (gpio::Pin<'A',9, gpio::Alternate>, gpio::Pin<'A', 10, gpio::Input>),
-        >,
+    >,
     // delay provider
     pub delay: SysDelay,
     // Buzzer
@@ -56,6 +60,8 @@ pub struct Mightybuga_BSC {
     pub btn_1: hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>,
     pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
     pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
+    pub encoder_r: IncrementalEncoder,
+    pub encoder_l: IncrementalEncoder,
 }
 
 impl Mightybuga_BSC {
@@ -65,15 +71,15 @@ impl Mightybuga_BSC {
         // HAL structs
         let mut flash = dp.FLASH.constrain();
 
-        // We need to enable the clocks here for the peripherals we want to use because the
-        // `constrain` frees the `RCC` register proxy.
+        // reset and clock control
+        let rcc = dp.RCC;
+        rcc.apb1enr.modify(|_, w| w.tim2en().set_bit());
+        rcc.apb1enr.modify(|_, w| w.tim3en().set_bit());
+        rcc.apb1enr.modify(|_, w| w.tim4en().set_bit());
 
-        // Enable the timer 3 clock in the RCC register (we net to do this before the constrain)
-        dp.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
-
-        let rcc = dp.RCC.constrain();
-
+        // Use external crystal for clock
         let clocks = rcc
+            .constrain()
             .cfgr
             .use_hse(8.MHz())
             .sysclk(72.MHz())
@@ -83,12 +89,14 @@ impl Mightybuga_BSC {
         let mut delay = cp.SYST.delay(&clocks);
         delay.delay(300.millis());
 
-        let mut afio = dp.AFIO.constrain();
-
         // GPIO ports
         let mut gpioa = dp.GPIOA.split();
         let mut gpiob = dp.GPIOB.split();
         let mut gpioc = dp.GPIOC.split();
+
+        // Alternate function I/O remapping
+        let mut afio = dp.AFIO.constrain();
+        let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
 
         // LEDs configuration
         let d1 = gpioc.pc13.into_push_pull_output(&mut gpioc.crh);
@@ -139,8 +147,6 @@ impl Mightybuga_BSC {
         let engine = Engine::new(motor_left, motor_right);
 
         // Buzzer configuration
-        let (_pa15, _pb3, pb4) = afio.mapr.disable_jtag(gpioa.pa15, gpiob.pb3, gpiob.pb4);
-        // Remap TIM3 gpio pin
         afio.mapr
             .modify_mapr(|_, w| unsafe { w.tim3_remap().bits(0b10) });
         let buzzer_pin = pb4.into_alternate_push_pull(&mut gpiob.crl);
@@ -150,6 +156,22 @@ impl Mightybuga_BSC {
         let btn_1 = hal_button::Button::new(gpiob.pb13.into_pull_down_input(&mut gpiob.crh));
         let btn_2 = hal_button::Button::new(gpioc.pc15.into_pull_down_input(&mut gpioc.crh));
         let btn_3 = hal_button::Button::new(gpioc.pc14.into_pull_down_input(&mut gpioc.crh));
+
+        // Encoder right
+        let encoder_r = IncrementalEncoder::new(
+            dp.TIM4.deref(),
+            TimerChannels::Ch1Ch2,
+            EncoderPolarity::PolarityBA,
+        );
+
+        // Encoder left
+        afio.mapr
+            .modify_mapr(|_, w| unsafe { w.tim2_remap().bits(0b01) });
+        let encoder_l = IncrementalEncoder::new(
+            dp.TIM2.deref(),
+            TimerChannels::Ch1Ch2,
+            EncoderPolarity::PolarityBA,
+        );
 
         // Return the initialized struct
         Ok(Mightybuga_BSC {
@@ -161,7 +183,9 @@ impl Mightybuga_BSC {
             engine,
             btn_1: btn_1,
             btn_2: btn_2,
-            btn_3: btn_3, 
+            btn_3: btn_3,
+            encoder_r,
+            encoder_l,
         })
     }
 }
