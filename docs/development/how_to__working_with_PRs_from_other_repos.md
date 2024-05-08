@@ -23,3 +23,9 @@ RustyBugA  git fetch origin pull/36/head:36-update-tools
 RustyBugA  git checkout 36-update-tools
 ```
 
+
+do your things and then
+```
+git push --set-upstream origin 36-update-tools
+```
+
