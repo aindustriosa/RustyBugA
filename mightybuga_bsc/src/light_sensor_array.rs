@@ -1,11 +1,7 @@
 use crate::hal::{
-    gpio::{
-        Pin,
-        Analog,
-        Output,
-    },
-    pac::ADC1,
     adc::Adc,
+    gpio::{Analog, Output, Pin},
+    pac::ADC1,
     prelude::_embedded_hal_adc_OneShot,
 };
 
@@ -31,8 +27,6 @@ pub struct LightSensorArray {
 
 impl light_sensor_array_controller::LightSensorArrayController for LightSensorArray {
     fn get_light_map(&mut self) -> [u16; 8] {
-        self.led.set_high();
-
         let light_map = [
             self.adc.read(&mut self.sensor_0).unwrap(),
             self.adc.read(&mut self.sensor_1).unwrap(),
@@ -44,9 +38,13 @@ impl light_sensor_array_controller::LightSensorArrayController for LightSensorAr
             self.adc.read(&mut self.sensor_7).unwrap(),
         ];
 
-        self.led.set_low();
-
         light_map
     }
-}
 
+    fn set_led(&mut self, value: bool) -> () {
+        match value {
+            true => self.led.set_high(),
+            false => self.led.set_low(),
+        }
+    }
+}

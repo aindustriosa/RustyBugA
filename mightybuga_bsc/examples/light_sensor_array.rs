@@ -10,9 +10,9 @@
 #![cfg_attr(not(doc), no_main)]
 
 use light_sensor_array_controller::LightSensorArrayController;
+use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
 use panic_halt as _;
-use mightybuga_bsc as board;
 
 use nb::block;
 
@@ -25,25 +25,32 @@ fn main() -> ! {
 
     let mut tx = uart.tx;
 
+    light_sensor_array.set_led(true);
+
     loop {
         delay.delay(2000.millis());
 
         let values = light_sensor_array.get_light_map();
-        
+
         // Print the values of the sensor array separated by new lines.
         values.iter().for_each(|value| {
-            let s = [b'0' + (value / 1000) as u8,
-                     b'0' + ((value / 100) % 10) as u8,
-                     b'0' + ((value / 10) % 10) as u8,
-                     b'0' + (value % 10) as u8,
-                     b'\r',
-                     b'\n'];
+            let s = [
+                b'0' + (value / 1000) as u8,
+                b'0' + ((value / 100) % 10) as u8,
+                b'0' + ((value / 10) % 10) as u8,
+                b'0' + (value % 10) as u8,
+                b' ',
+                b' ',
+            ];
 
-            let _ = s.iter().map(|c| block!(tx.write(*c))).last();
+            s.iter().for_each(|c| {
+                block!(tx.write(*c));
+            });
         });
 
-        // Separator to prevent confusions when reading the values in the terminal
-        block!(tx.write(b'-'));
+        // Print a new line to separate the values of the sensor array.
+        block!(tx.write(b'\r')).ok();
+        block!(tx.write(b'\n')).ok();
     }
 }
 
