@@ -21,7 +21,7 @@ fn main() -> ! {
     let board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
     let mut light_sensor_array = board.light_sensor_array;
-    let mut uart = board.uart;
+    let uart = board.serial;
 
     let mut tx = uart.tx;
 
@@ -44,7 +44,7 @@ fn main() -> ! {
             ];
 
             s.iter().for_each(|c| {
-                block!(tx.write(*c));
+                block!(tx.write(*c)).unwrap();
             });
         });
 
@@ -53,4 +53,3 @@ fn main() -> ! {
         block!(tx.write(b'\n')).ok();
     }
 }
-
