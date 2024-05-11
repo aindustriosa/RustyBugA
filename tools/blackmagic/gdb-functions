@@ -1,0 +1,16 @@
+
+# This user-defined function flashes the given .elf 
+# file to the microcontroller and should then  exit.
+# $arg0 is the .elf file to flash
+# $arg1 is the com port to use
+define upload-remote
+  target extended-remote $arg1
+  monitor version
+  monitor swdp_scan
+  attach 1
+  file $arg0
+  load
+  start
+  detach
+  quit
+end
