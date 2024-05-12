@@ -8,6 +8,7 @@ use hal::gpio::PullDown;
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
 
+use hal::adc::Adc;
 use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
@@ -16,6 +17,9 @@ use hal::timer::SysDelay;
 use engine::engine::Engine;
 use engine::motor::Motor;
 use stm32f1xx_hal::timer::PwmChannel;
+
+mod light_sensor_array;
+use light_sensor_array::LightSensorArray;
 
 pub use crate::hal::*;
 
@@ -38,7 +42,10 @@ pub struct Mightybuga_BSC {
     // UART
     pub serial: Serial<
         USART1,
-        (gpio::Pin<'A',9, gpio::Alternate>, gpio::Pin<'A', 10, gpio::Input>),
+        (
+            gpio::Pin<'A', 9, gpio::Alternate>,
+            gpio::Pin<'A', 10, gpio::Input>,
+        ),
     >,
     // delay provider
     pub delay: SysDelay,
@@ -57,11 +64,15 @@ pub struct Mightybuga_BSC {
             PwmChannel<TIM1, 3>,
         >,
     >,
+    // Buttons
     pub btn_1: hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>,
     pub btn_2: hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>,
     pub btn_3: hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>,
+    // Encoders
     pub encoder_r: IncrementalEncoder,
     pub encoder_l: IncrementalEncoder,
+    // Light sensor array
+    pub light_sensor_array: LightSensorArray,
 }
 
 impl Mightybuga_BSC {
@@ -173,6 +184,21 @@ impl Mightybuga_BSC {
             EncoderPolarity::PolarityBA,
         );
 
+        // Initialize the line sensor array
+        let adc1 = Adc::adc1(dp.ADC1, clocks);
+        let light_sensor_array = LightSensorArray {
+            led: gpiob.pb1.into_push_pull_output(&mut gpiob.crl),
+            sensor_0: gpioa.pa0.into_analog(&mut gpioa.crl),
+            sensor_1: gpioa.pa1.into_analog(&mut gpioa.crl),
+            sensor_2: gpioa.pa2.into_analog(&mut gpioa.crl),
+            sensor_3: gpioa.pa3.into_analog(&mut gpioa.crl),
+            sensor_4: gpioa.pa4.into_analog(&mut gpioa.crl),
+            sensor_5: gpioa.pa5.into_analog(&mut gpioa.crl),
+            sensor_6: gpioa.pa6.into_analog(&mut gpioa.crl),
+            sensor_7: gpioa.pa7.into_analog(&mut gpioa.crl),
+            adc: adc1,
+        };
+
         // Return the initialized struct
         Ok(Mightybuga_BSC {
             led_d1: d1,
@@ -186,6 +212,7 @@ impl Mightybuga_BSC {
             btn_3: btn_3,
             encoder_r,
             encoder_l,
+            light_sensor_array,
         })
     }
 }
