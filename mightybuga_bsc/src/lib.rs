@@ -179,8 +179,6 @@ impl Mightybuga_BSC {
         };
 
         // Return the initialized struct
-
-        // Return the initialized struct
         Ok(Mightybuga_BSC {
             led_d1: d1,
             led_d2: d2,
