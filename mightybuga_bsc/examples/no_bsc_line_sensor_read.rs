@@ -41,6 +41,9 @@ fn main() -> ! {
     // Acquire the GPIOA peripheral
     let mut gpioa = dp.GPIOA.split();
 
+    // Get the ADC, using the ADC1 peripheral
+    let mut adc = Adc::adc1(dp.ADC1, clocks);
+
     // Get the pins to read with the ADC1, these are from PA0 to PA7. We cannot use an array to make it
     // easier to iterate over them because the pins have different types.
     let mut pa0 = gpioa.pa0.into_analog(&mut gpioa.crl);
@@ -55,9 +58,6 @@ fn main() -> ! {
     // We also use PB1 to turn on the light of the line sensor
     let mut gpiob = dp.GPIOB.split();
     let mut line_sensor_led = gpiob.pb1.into_push_pull_output(&mut gpiob.crl);
-
-    // Get the ADC, using the ADC1 peripheral
-    let mut adc = Adc::adc1(dp.ADC1, clocks);
 
     // Configure gpio A pins 9 and 10 as a push-pull output. The `crh` register is passed to the
     // function in order to configure the port. For pins 0-7, crl should be passed instead.
@@ -84,7 +84,7 @@ fn main() -> ! {
 
     loop {
         line_sensor_led.set_high();
-        delay.delay_ms(100_u16);
+        delay.delay_ms(2000_u16);
 
         let s = b"\r\nReadings with light on: ";
         let _ = s.iter().map(|c| block!(tx.write(*c))).last();
@@ -109,7 +109,7 @@ fn main() -> ! {
         let _ = s.iter().map(|c| block!(tx.write(*c))).last();
 
         line_sensor_led.set_low();
-        delay.delay_ms(100_u16);
+        delay.delay_ms(2000_u16);
 
         // read all the pins and put the readings in an array
         readings[0] = adc.read(&mut pa0).unwrap();
@@ -139,6 +139,7 @@ fn u16_to_str(n: u16, buf: &mut [u8; 5]) {
 }
 
 // function that prints a u16 number and can add a blank space after it or not or a new line
+// the number has just 4 digits
 fn print_u16_with_space_or_new_line(
     tx: &mut Tx<USART1>,
     n: u16,
@@ -147,7 +148,14 @@ fn print_u16_with_space_or_new_line(
 ) {
     let mut s: [u8; 5] = [0; 5];
     u16_to_str(n, &mut s);
-    let _ = s.iter().map(|c| block!(tx.write(*c))).last();
+
+    // this is the original code that prints the whole number
+    //let _ = s.iter().map(|c| block!(tx.write(*c))).last();
+    // we just print the first 4 digits
+    for i in 0..4 {
+        let _ = block!(tx.write(s[i]));
+    }
+
     if add_space {
         let _ = block!(tx.write(b' '));
     }
