@@ -1,16 +1,18 @@
 #![no_std]
 #![allow(non_camel_case_types)]
 
-use hal::gpio::PullDown;
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
 pub use stm32f1xx_hal as hal;
 
 use hal::adc::Adc;
 use hal::pac::*;
+use hal::gpio::PullDown;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
+
+use core::cell::RefCell;
 
 use engine::engine::Engine;
 use engine::motor::Motor;
@@ -173,7 +175,7 @@ impl Mightybuga_BSC {
             sensor_5: gpioa.pa5.into_analog(&mut gpioa.crl),
             sensor_6: gpioa.pa6.into_analog(&mut gpioa.crl),
             sensor_7: gpioa.pa7.into_analog(&mut gpioa.crl),
-            adc: adc1,
+            adc: RefCell::new(adc1),
         };
 
         // Return the initialized struct
@@ -186,9 +188,9 @@ impl Mightybuga_BSC {
             delay,
             buzzer,
             engine,
-            btn_1: btn_1,
-            btn_2: btn_2,
-            btn_3: btn_3,
+            btn_1,
+            btn_2,
+            btn_3,
             light_sensor_array,
         })
     }

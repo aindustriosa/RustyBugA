@@ -1,3 +1,4 @@
+use core::cell::RefCell;
 use crate::hal::{
     adc::Adc,
     gpio::{Analog, Output, Pin},
@@ -22,20 +23,20 @@ pub struct LightSensorArray {
     pub sensor_6: Pin<'A', 6, Analog>,
     pub sensor_7: Pin<'A', 7, Analog>,
 
-    pub adc: Adc<ADC1>,
+    pub adc: RefCell<Adc<ADC1>>,
 }
 
 impl light_sensor_array_controller::LightSensorArrayController for LightSensorArray {
     fn get_light_map(&mut self) -> [u16; 8] {
         let light_map = [
-            self.adc.read(&mut self.sensor_0).unwrap(),
-            self.adc.read(&mut self.sensor_1).unwrap(),
-            self.adc.read(&mut self.sensor_2).unwrap(),
-            self.adc.read(&mut self.sensor_3).unwrap(),
-            self.adc.read(&mut self.sensor_4).unwrap(),
-            self.adc.read(&mut self.sensor_5).unwrap(),
-            self.adc.read(&mut self.sensor_6).unwrap(),
-            self.adc.read(&mut self.sensor_7).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_0).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_1).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_2).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_3).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_4).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_5).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_6).unwrap(),
+            self.adc.get_mut().read(&mut self.sensor_7).unwrap(),
         ];
 
         light_map
