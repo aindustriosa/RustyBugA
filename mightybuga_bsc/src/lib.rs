@@ -6,12 +6,11 @@
 pub use stm32f1xx_hal as hal;
 
 use hal::adc::Adc;
-use hal::pac::*;
 use hal::gpio::PullDown;
+use hal::pac::*;
 use hal::prelude::*;
 use hal::serial::*;
 use hal::timer::SysDelay;
-use hal::gpio::PullDown;
 
 use core::cell::RefCell;
 use core::ops::Deref;
@@ -89,11 +88,6 @@ impl Mightybuga_BSC {
         rcc.apb1enr.modify(|_, w| w.tim2en().set_bit());
         rcc.apb1enr.modify(|_, w| w.tim3en().set_bit());
         rcc.apb1enr.modify(|_, w| w.tim4en().set_bit());
-
-        // Enable the timer 3 clock in the RCC register (we need to do this before the constrain)
-        dp.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
-
-        let rcc = dp.RCC.constrain();
 
         // Use external crystal for clock
         let clocks = rcc
