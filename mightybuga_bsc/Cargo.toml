@@ -21,6 +21,7 @@ nb = "1.1.0"
 
 engine = { path = "../libs/engine/" }
 hal_button = { path = "../libs/hal_button" }
+hal-encoder-stm32f1xx = { path = "../libs/hal_encoder_stm32f1xx" }
 timer_based_buzzer_interface = { path = "../libs/timer_based_buzzer_interface/" }
 light_sensor_array_controller = { path = "../libs/light_sensor_array_controller/" }
 

@@ -10,6 +10,7 @@ use mightybuga_bsc::prelude::*;
 use mightybuga_bsc::timer::SysDelay;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
+use mightybuga_bsc::EncoderController;
 
 use engine::engine::EngineController;
 
@@ -26,21 +27,13 @@ use logging::Logger;
 
 #[entry]
 fn main() -> ! {
-    let board = board::Mightybuga_BSC::take().unwrap();
+    let mut board = board::Mightybuga_BSC::take().unwrap();
     let mut delay = board.delay;
     let mut uart = board.serial;
     let mut led_d1 = board.led_d1;
     let mut led_d2 = board.led_d2;
     let mut buzzer = board.buzzer;
     let mut engine = board.engine;
-
-    // Initialize the allocator BEFORE you use it
-    {
-        use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 1024;
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe { HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
-    }
 
     let mut logger = Logger::new(&mut uart.tx);
 
@@ -71,6 +64,14 @@ fn main() -> ! {
                 b'5' => {
                     // Turn off the LED D1
                     led_d2.set_low();
+                }
+                b'6' => {
+                    // Read the left encoder
+                    read_encoder(&mut board.encoder_l, &mut logger, &mut delay);
+                }
+                b'7' => {
+                    // Read the right encoder
+                    read_encoder(&mut board.encoder_r, &mut logger, &mut delay);
                 }
                 b'a' => {
                     // Move the robot forward
@@ -117,6 +118,8 @@ fn print_menu(logger: &mut Logger) {
     logger.log("   3. Turn off the LED D1\r\n");
     logger.log("   4. Turn on the LED D2\r\n");
     logger.log("   5. Turn off the LED D2\r\n");
+    logger.log("   6. Read the left encoder\r\n");
+    logger.log("   7. Read the right encoder\r\n");
     logger.log("   a. Move the robot forward\r\n");
     logger.log("   s. Move the robot backward\r\n");
     logger.log("   d. Turn the robot right\r\n");
@@ -157,4 +160,52 @@ fn play_notes(logger: &mut Logger, buzzer: &mut TimerBasedBuzzer, delay: &mut Sy
     buzzer.change_frequency(E.prescaler, E.counter);
     delay.delay(300.millis());
     buzzer.turn_off();
+}
+
+fn read_encoder(encoder: &mut mightybuga_bsc::IncrementalEncoder, logger: &mut Logger, delay: &mut SysDelay) {
+    encoder.enable();
+    logger.log("move the encoder! (and reset MCU to exit)\r\n");
+
+    let mut last = 0;
+    loop {
+        let (delta, steps) = encoder.delta();
+        if last != steps{
+            logger.log("(steps,delta): (");
+            print_number(steps, logger);
+            logger.log(",");
+            print_number(delta, logger);
+            logger.log(")\r\n");
+            last = steps;
+        }
+
+        // don't burn the CPU
+        delay.delay(20.millis());
+    }
+}
+
+fn print_number(n: isize, logger: &mut Logger) {
+    let mut len = 0;
+        let mut digits = [0_u8; 20];
+        let mut d = 0;
+        let mut binary = n.abs();
+        while binary > 0 {
+            digits[d] = (binary % 10) as u8;
+            d += 1;
+            binary /= 10;
+        }
+        if d == 0 {
+            d = 1;
+        }
+        let mut ascii = [0_u8; 20];
+        if n < 0 {
+            ascii[0] = b'-';
+            len = 1;
+        }
+        while d > 0 {
+            d -= 1;
+            ascii[len] = digits[d] + b'0';
+            len += 1;
+        }
+    let s = core::str::from_utf8(ascii[0..len].as_ref()).unwrap();
+    logger.log(s);
 }

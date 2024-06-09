@@ -1,0 +1,10 @@
+[package]
+name = "hal-encoder-stm32f1xx"
+description = "Implementations of hal_encoder abstraction for STM32F1xx"
+version = "0.1.0"
+authors = ["Rafa Couto <caligari@treboada.net>"]
+edition = "2021"
+
+[dependencies]
+hal-encoder = { version = "0.1.0", path = "../hal_encoder" }
+stm32f1xx-hal = { version = "0.10.0", features = ["rt", "stm32f103", "medium"] }
