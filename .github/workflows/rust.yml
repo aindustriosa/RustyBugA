@@ -39,7 +39,8 @@ jobs:
         run: |
           rustup component add llvm-tools-preview
           rustup target add thumbv7m-none-eabi
-          cargo install cargo-binutils cargo-embed cargo-flash cargo-expand
+          cargo binstall probe-rs-tools
+          cargo install cargo-binutils cargo-flash cargo-expand
           cargo install cargo-generate
 
       - name: Build
