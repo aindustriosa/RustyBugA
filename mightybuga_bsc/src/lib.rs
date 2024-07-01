@@ -13,6 +13,8 @@ use hal::serial::*;
 use hal::timer::SysDelay;
 
 use core::cell::RefCell;
+
+use heapless::arc_pool;
 use core::ops::Deref;
 
 use engine::engine::Engine;
@@ -35,6 +37,9 @@ pub mod prelude {
         _embedded_hal_blocking_delay_DelayMs, _embedded_hal_blocking_delay_DelayUs, _fugit_ExtU32,
     };
 }
+
+// Implement ArcPool for the ADC1
+arc_pool!(ADC_POOL: RefCell<Adc<ADC1>>);
 
 pub struct Mightybuga_BSC {
     // LEDs
@@ -185,8 +190,12 @@ impl Mightybuga_BSC {
             EncoderPolarity::PolarityBA,
         );
 
-        // Initialize the line sensor array
-        let adc1 = Adc::adc1(dp.ADC1, clocks);
+        // Allocate the Adc in an Arc to share it
+        let adc_arc = match ADC_POOL.alloc(RefCell::new(Adc::adc1(dp.ADC1, clocks))) {
+            Ok(adc_arc) => adc_arc,
+            Err(_) => panic!("Couldn't get the adc arc"),
+        };
+
         let light_sensor_array = LightSensorArray {
             led: gpiob.pb1.into_push_pull_output(&mut gpiob.crl),
             sensor_0: gpioa.pa0.into_analog(&mut gpioa.crl),
@@ -197,7 +206,7 @@ impl Mightybuga_BSC {
             sensor_5: gpioa.pa5.into_analog(&mut gpioa.crl),
             sensor_6: gpioa.pa6.into_analog(&mut gpioa.crl),
             sensor_7: gpioa.pa7.into_analog(&mut gpioa.crl),
-            adc: RefCell::new(adc1),
+            adc: adc_arc.clone(),
         };
 
         // Return the initialized struct
