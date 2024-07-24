@@ -8,6 +8,7 @@ members = [
   "libs/hal_button",
   "libs/hal_encoder_stm32f1xx",
   "apps/hello_world",
+  "apps/line_follower",
 ]
 
 resolver = "2"
