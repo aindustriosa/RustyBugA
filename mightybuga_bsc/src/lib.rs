@@ -14,7 +14,10 @@ use hal::timer::SysDelay;
 
 use core::cell::RefCell;
 
-use heapless::arc_pool;
+use heapless::{
+    arc_pool,
+    pool::arc::ArcBlock,
+};
 use core::ops::Deref;
 
 use engine::engine::Engine;
@@ -189,6 +192,13 @@ impl Mightybuga_BSC {
             TimerChannels::Ch1Ch2,
             EncoderPolarity::PolarityBA,
         );
+
+        // Generate the memory block in which the adc will be allocated
+        let adc_arc_block: &'static mut ArcBlock<RefCell<Adc<ADC1>>> = unsafe {
+            static mut B: ArcBlock<RefCell<Adc<ADC1>>> = ArcBlock::new();
+            &mut B
+        };
+        ADC_POOL.manage(adc_arc_block);
 
         // Allocate the Adc in an Arc to share it
         let adc_arc = match ADC_POOL.alloc(RefCell::new(Adc::adc1(dp.ADC1, clocks))) {
