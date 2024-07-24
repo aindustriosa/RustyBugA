@@ -3,6 +3,7 @@
 //! safe way (except for the part in which we define the block of memory, that requires using unsafe)
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
+#![allow(static_mut_refs)]
 use core::cell::RefCell;
 
 use stm32f1xx_hal::{

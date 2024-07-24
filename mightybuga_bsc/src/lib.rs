@@ -1,5 +1,6 @@
 #![no_std]
 #![allow(non_camel_case_types)]
+#![allow(static_mut_refs)]
 
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
