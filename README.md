@@ -52,19 +52,8 @@ export UPLOAD_TOOL=blackmagic
 cargo xtask run app hello_world
 ```
 
-### Use GDB debug
-
-You need `runner = "gdb-multiarch -q -x openocd_debug.gdb"` in mightybuga_bsc/.cargo/config , then start a openocd instance:
-
-```commandline
-sudo openocd -f openocd.cfg
-```
-
-and:
-
-```commandline
-cargo run
-```
+## Debugging
+Go to the [documentation for debugging](./docs/GDB_Debugging/gdb-debugging.md).
 
 ## References
 Forked from https://cgit.pinealservo.com/BluePill_Rust/blue_pill_base
