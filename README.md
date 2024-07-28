@@ -53,7 +53,7 @@ cargo xtask run app hello_world
 ```
 
 ## Debugging
-Go to the [documentation for debugging](./docs/GDB_Debugging/gdb-debugging.md).
+Go to the [documentation for debugging](./docs/GDB-Debugging/gdb-debugging.md).
 
 ## References
 Forked from https://cgit.pinealservo.com/BluePill_Rust/blue_pill_base
