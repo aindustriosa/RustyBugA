@@ -18,14 +18,6 @@ cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete
 ```
 or from the BSC folder:
 
+## Debugging
+Go to the [documentation for debugging](../docs/GDB-Debugging/gdb-debugging.md).
 
-### Debugging
-Check what runner you have uncommented in .cargo/config:
-
-You need `runner = "gdb-multiarch -q -x openocd.gdb", start a openocd instance:
-
-sudo openocd -f openocd.cfg
-
-and:
-
-cargo xtask mightybuga_bsc example blink

@@ -1,0 +1,9 @@
+[package]
+name = "hal_button"
+description = "Abstractions for a button controller"
+version = "0.1.0"
+authors = ["Rafa Couto <caligari@treboada.net>"]
+edition = "2021"
+
+[dependencies]
+embedded-hal = { version = "0.2.7", features = ["unproven"] }
