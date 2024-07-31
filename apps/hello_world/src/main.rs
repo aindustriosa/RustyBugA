@@ -14,6 +14,7 @@ use mightybuga_bsc::EncoderController;
 
 use engine::engine::EngineController;
 use light_sensor_array_controller::LightSensorArrayController;
+use battery_sensor_controller::BatterySensorController;
 
 use nb::block;
 
@@ -36,6 +37,7 @@ fn main() -> ! {
     let mut buzzer = board.buzzer;
     let mut engine = board.engine;
     let mut light_sensor_array = board.light_sensor_array;
+    let mut battery_sensor = board.battery_sensor;
 
     let mut logger = Logger::new(&mut uart.tx);
 
@@ -112,6 +114,12 @@ fn main() -> ! {
                     }
                     logger.log("\r\n");
                 }
+                b'h' => {
+                    // Read the battery sensor
+                    logger.log("Battery sensor value: ");
+                    print_number(battery_sensor.get_battery_millivolts() as isize, &mut logger);
+                    logger.log(" milli Volts\r\n");
+                }
                 _ => {
                     // Print the menu
                     print_menu(&mut logger);
@@ -140,6 +148,7 @@ fn print_menu(logger: &mut Logger) {
     logger.log("   d. Turn the robot right\r\n");
     logger.log("   f. Turn the robot left\r\n");
     logger.log("   g. Read the light sensors\r\n");
+    logger.log("   h. Read the battery sensor\r\n");
     logger.log("   Any other key prints this menu\r\n");
 }
 

@@ -25,6 +25,7 @@ hal_button = { path = "../libs/hal_button" }
 hal-encoder-stm32f1xx = { path = "../libs/hal_encoder_stm32f1xx" }
 timer_based_buzzer_interface = { path = "../libs/timer_based_buzzer_interface/" }
 light_sensor_array_controller = { path = "../libs/light_sensor_array_controller/" }
+battery_sensor_controller = { path = "../libs/battery_sensor_controller/" }
 
 [profile.release]
 codegen-units = 1 # better optimizations
