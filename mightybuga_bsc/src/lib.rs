@@ -1,5 +1,6 @@
 #![no_std]
 #![allow(non_camel_case_types)]
+#![allow(static_mut_refs)]
 
 // reexport hal crates to allow users to directly refer to them
 // like in https://github.com/therealprof/nucleo-f103rb/blob/master/src/lib.rs
@@ -13,6 +14,11 @@ use hal::serial::*;
 use hal::timer::SysDelay;
 
 use core::cell::RefCell;
+
+use heapless::{
+    arc_pool,
+    pool::arc::ArcBlock,
+};
 use core::ops::Deref;
 
 use engine::engine::Engine;
@@ -21,6 +27,9 @@ use stm32f1xx_hal::timer::PwmChannel;
 
 mod light_sensor_array;
 use light_sensor_array::LightSensorArray;
+
+mod battery_sensor;
+use battery_sensor::BatterySensor;
 
 pub use crate::hal::*;
 
@@ -35,6 +44,9 @@ pub mod prelude {
         _embedded_hal_blocking_delay_DelayMs, _embedded_hal_blocking_delay_DelayUs, _fugit_ExtU32,
     };
 }
+
+// Implement ArcPool for the ADC1
+arc_pool!(ADC_POOL: RefCell<Adc<ADC1>>);
 
 pub struct Mightybuga_BSC {
     // LEDs
@@ -74,6 +86,8 @@ pub struct Mightybuga_BSC {
     pub encoder_l: IncrementalEncoder,
     // Light sensor array
     pub light_sensor_array: LightSensorArray,
+    // Battery sensor
+    pub battery_sensor: BatterySensor,
 }
 
 impl Mightybuga_BSC {
@@ -185,8 +199,19 @@ impl Mightybuga_BSC {
             EncoderPolarity::PolarityBA,
         );
 
-        // Initialize the line sensor array
-        let adc1 = Adc::adc1(dp.ADC1, clocks);
+        // Generate the memory block in which the adc will be allocated
+        let adc_arc_block: &'static mut ArcBlock<RefCell<Adc<ADC1>>> = unsafe {
+            static mut B: ArcBlock<RefCell<Adc<ADC1>>> = ArcBlock::new();
+            &mut B
+        };
+        ADC_POOL.manage(adc_arc_block);
+
+        // Allocate the Adc in an Arc to share it
+        let adc_arc = match ADC_POOL.alloc(RefCell::new(Adc::adc1(dp.ADC1, clocks))) {
+            Ok(adc_arc) => adc_arc,
+            Err(_) => panic!("Couldn't get the adc arc"),
+        };
+
         let light_sensor_array = LightSensorArray {
             led: gpiob.pb1.into_push_pull_output(&mut gpiob.crl),
             sensor_0: gpioa.pa0.into_analog(&mut gpioa.crl),
@@ -197,7 +222,12 @@ impl Mightybuga_BSC {
             sensor_5: gpioa.pa5.into_analog(&mut gpioa.crl),
             sensor_6: gpioa.pa6.into_analog(&mut gpioa.crl),
             sensor_7: gpioa.pa7.into_analog(&mut gpioa.crl),
-            adc: RefCell::new(adc1),
+            adc: adc_arc.clone(),
+        };
+
+        let battery_sensor = BatterySensor {
+            sensor_0: gpiob.pb0.into_analog(&mut gpiob.crl),
+            adc: adc_arc.clone(),
         };
 
         // Return the initialized struct
@@ -214,6 +244,7 @@ impl Mightybuga_BSC {
             btn_2,
             btn_3,
             light_sensor_array,
+            battery_sensor,
         })
     }
 }

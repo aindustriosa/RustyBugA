@@ -1,9 +1,10 @@
-use core::cell::RefCell;
-use crate::hal::{
-    adc::Adc,
-    gpio::{Analog, Output, Pin},
-    pac::ADC1,
-    prelude::_embedded_hal_adc_OneShot,
+use heapless::pool::arc::Arc;
+use crate::{
+    hal::{
+        gpio::{Analog, Output, Pin},
+        prelude::_embedded_hal_adc_OneShot,
+    },
+    ADC_POOL,
 };
 
 /// The LineSensor used to detect the place where the line is located.
@@ -23,20 +24,23 @@ pub struct LightSensorArray {
     pub sensor_6: Pin<'A', 6, Analog>,
     pub sensor_7: Pin<'A', 7, Analog>,
 
-    pub adc: RefCell<Adc<ADC1>>,
+    pub adc: Arc<ADC_POOL>,
 }
 
 impl light_sensor_array_controller::LightSensorArrayController for LightSensorArray {
     fn get_light_map(&mut self) -> [u16; 8] {
+
+        let mut adc = self.adc.borrow_mut();
+
         let light_map = [
-            self.adc.get_mut().read(&mut self.sensor_0).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_1).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_2).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_3).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_4).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_5).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_6).unwrap(),
-            self.adc.get_mut().read(&mut self.sensor_7).unwrap(),
+            adc.read(&mut self.sensor_0).unwrap(),
+            adc.read(&mut self.sensor_1).unwrap(),
+            adc.read(&mut self.sensor_2).unwrap(),
+            adc.read(&mut self.sensor_3).unwrap(),
+            adc.read(&mut self.sensor_4).unwrap(),
+            adc.read(&mut self.sensor_5).unwrap(),
+            adc.read(&mut self.sensor_6).unwrap(),
+            adc.read(&mut self.sensor_7).unwrap(),
         ];
 
         light_map
