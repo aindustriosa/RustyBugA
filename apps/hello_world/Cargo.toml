@@ -15,6 +15,7 @@ embedded-alloc = "0.5.1"
 
 logging = { path = "../../libs/logging" }
 engine = { path = "../../libs/engine" }
+light_sensor_array_controller = { path = "../../libs/light_sensor_array_controller" }
 
 [profile.release]
 codegen-units = 1 # better optimizations
