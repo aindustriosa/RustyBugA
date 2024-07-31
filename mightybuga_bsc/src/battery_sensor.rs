@@ -1,6 +1,6 @@
 use crate::{
     hal::{
-        gpio::{Analog, Output, Pin},
+        gpio::{Analog, Pin},
         prelude::_embedded_hal_adc_OneShot,
     },
     ADC_POOL,
