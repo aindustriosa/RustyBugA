@@ -13,6 +13,8 @@ use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
 use mightybuga_bsc::EncoderController;
 
 use engine::engine::EngineController;
+use light_sensor_array_controller::LightSensorArrayController;
+use battery_sensor_controller::BatterySensorController;
 
 use nb::block;
 
@@ -34,6 +36,8 @@ fn main() -> ! {
     let mut led_d2 = board.led_d2;
     let mut buzzer = board.buzzer;
     let mut engine = board.engine;
+    let mut light_sensor_array = board.light_sensor_array;
+    let mut battery_sensor = board.battery_sensor;
 
     let mut logger = Logger::new(&mut uart.tx);
 
@@ -97,6 +101,25 @@ fn main() -> ! {
                     delay.delay(1000.millis());
                     engine.stop();
                 }
+                b'g' => {
+                    // Read the light sensors
+                    light_sensor_array.set_led(true);
+                    delay.delay(500.millis());
+                    logger.log("Light sensor values: ");
+                    let light_map = light_sensor_array.get_light_map();
+                    light_sensor_array.set_led(false);
+                    for i in 0..8 {
+                        logger.log(" ");
+                        print_number(light_map[i] as isize, &mut logger);
+                    }
+                    logger.log("\r\n");
+                }
+                b'h' => {
+                    // Read the battery sensor
+                    logger.log("Battery sensor value: ");
+                    print_number(battery_sensor.get_battery_millivolts() as isize, &mut logger);
+                    logger.log(" milli Volts\r\n");
+                }
                 _ => {
                     // Print the menu
                     print_menu(&mut logger);
@@ -124,6 +147,8 @@ fn print_menu(logger: &mut Logger) {
     logger.log("   s. Move the robot backward\r\n");
     logger.log("   d. Turn the robot right\r\n");
     logger.log("   f. Turn the robot left\r\n");
+    logger.log("   g. Read the light sensors\r\n");
+    logger.log("   h. Read the battery sensor\r\n");
     logger.log("   Any other key prints this menu\r\n");
 }
 

@@ -28,6 +28,9 @@ use stm32f1xx_hal::timer::PwmChannel;
 mod light_sensor_array;
 use light_sensor_array::LightSensorArray;
 
+mod battery_sensor;
+use battery_sensor::BatterySensor;
+
 pub use crate::hal::*;
 
 pub mod timer_based_buzzer;
@@ -83,6 +86,8 @@ pub struct Mightybuga_BSC {
     pub encoder_l: IncrementalEncoder,
     // Light sensor array
     pub light_sensor_array: LightSensorArray,
+    // Battery sensor
+    pub battery_sensor: BatterySensor,
 }
 
 impl Mightybuga_BSC {
@@ -220,6 +225,11 @@ impl Mightybuga_BSC {
             adc: adc_arc.clone(),
         };
 
+        let battery_sensor = BatterySensor {
+            sensor_0: gpiob.pb0.into_analog(&mut gpiob.crl),
+            adc: adc_arc.clone(),
+        };
+
         // Return the initialized struct
         Ok(Mightybuga_BSC {
             led_d1: d1,
@@ -234,6 +244,7 @@ impl Mightybuga_BSC {
             btn_2,
             btn_3,
             light_sensor_array,
+            battery_sensor,
         })
     }
 }
