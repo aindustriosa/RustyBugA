@@ -6,22 +6,16 @@
 #![allow(static_mut_refs)]
 use core::cell::RefCell;
 
-use stm32f1xx_hal::{
-    pac::ADC1,
-    adc::Adc,
-};
+use stm32f1xx_hal::{adc::Adc, pac::ADC1};
 
 use panic_halt as _;
 
 use mightybuga_bsc as board;
 
-use cortex_m_rt::entry;
 use board::hal::{pac, prelude::*};
+use cortex_m_rt::entry;
 
-use heapless::{
-    arc_pool,
-    pool::arc::ArcBlock,
-};
+use heapless::{arc_pool, pool::arc::ArcBlock};
 
 #[entry]
 fn main() -> ! {
@@ -63,21 +57,25 @@ fn main() -> ! {
         Ok(adc_arc) => adc_arc,
         Err(_) => {
             panic!("Couldn't get the Arc");
-        },
+        }
     };
 
     // Clone the pointer to the refcell<adc1>
     let arc2 = arc.clone();
 
     // Use any of those pointers to read using the adc
-    let _x: u16 = arc2.borrow_mut().read(&mut gpioa.pa0.into_analog(&mut gpioa.crl)).unwrap();
-    let _y: u16 = arc.borrow_mut().read(&mut gpioa.pa2.into_analog(&mut gpioa.crl)).unwrap();
+    let _x: u16 = arc2
+        .borrow_mut()
+        .read(&mut gpioa.pa0.into_analog(&mut gpioa.crl))
+        .unwrap();
+    let _y: u16 = arc
+        .borrow_mut()
+        .read(&mut gpioa.pa2.into_analog(&mut gpioa.crl))
+        .unwrap();
 
     // Drop the pointers and the original instance of the refcell<adc1>
     drop(arc2);
     drop(arc);
 
-    loop {
-
-    }
+    loop {}
 }

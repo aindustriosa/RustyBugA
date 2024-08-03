@@ -6,8 +6,8 @@ use panic_halt as _;
 
 use mightybuga_bsc as board;
 
-use cortex_m_rt::entry;
 use board::hal::{pac, prelude::*};
+use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {

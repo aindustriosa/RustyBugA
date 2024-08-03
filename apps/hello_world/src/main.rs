@@ -12,9 +12,9 @@ use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
 use mightybuga_bsc::EncoderController;
 
+use battery_sensor_controller::BatterySensorController;
 use engine::engine::EngineController;
 use light_sensor_array_controller::LightSensorArrayController;
-use battery_sensor_controller::BatterySensorController;
 
 use nb::block;
 
@@ -117,7 +117,10 @@ fn main() -> ! {
                 b'h' => {
                     // Read the battery sensor
                     logger.log("Battery sensor value: ");
-                    print_number(battery_sensor.get_battery_millivolts() as isize, &mut logger);
+                    print_number(
+                        battery_sensor.get_battery_millivolts() as isize,
+                        &mut logger,
+                    );
                     logger.log(" milli Volts\r\n");
                 }
                 _ => {
@@ -187,14 +190,18 @@ fn play_notes(logger: &mut Logger, buzzer: &mut TimerBasedBuzzer, delay: &mut Sy
     buzzer.turn_off();
 }
 
-fn read_encoder(encoder: &mut mightybuga_bsc::IncrementalEncoder, logger: &mut Logger, delay: &mut SysDelay) {
+fn read_encoder(
+    encoder: &mut mightybuga_bsc::IncrementalEncoder,
+    logger: &mut Logger,
+    delay: &mut SysDelay,
+) {
     encoder.enable();
     logger.log("move the encoder! (and reset MCU to exit)\r\n");
 
     let mut last = 0;
     loop {
         let (delta, steps) = encoder.delta();
-        if last != steps{
+        if last != steps {
             logger.log("(steps,delta): (");
             print_number(steps, logger);
             logger.log(",");
@@ -210,27 +217,27 @@ fn read_encoder(encoder: &mut mightybuga_bsc::IncrementalEncoder, logger: &mut L
 
 fn print_number(n: isize, logger: &mut Logger) {
     let mut len = 0;
-        let mut digits = [0_u8; 20];
-        let mut d = 0;
-        let mut binary = n.abs();
-        while binary > 0 {
-            digits[d] = (binary % 10) as u8;
-            d += 1;
-            binary /= 10;
-        }
-        if d == 0 {
-            d = 1;
-        }
-        let mut ascii = [0_u8; 20];
-        if n < 0 {
-            ascii[0] = b'-';
-            len = 1;
-        }
-        while d > 0 {
-            d -= 1;
-            ascii[len] = digits[d] + b'0';
-            len += 1;
-        }
+    let mut digits = [0_u8; 20];
+    let mut d = 0;
+    let mut binary = n.abs();
+    while binary > 0 {
+        digits[d] = (binary % 10) as u8;
+        d += 1;
+        binary /= 10;
+    }
+    if d == 0 {
+        d = 1;
+    }
+    let mut ascii = [0_u8; 20];
+    if n < 0 {
+        ascii[0] = b'-';
+        len = 1;
+    }
+    while d > 0 {
+        d -= 1;
+        ascii[len] = digits[d] + b'0';
+        len += 1;
+    }
     let s = core::str::from_utf8(ascii[0..len].as_ref()).unwrap();
     logger.log(s);
 }

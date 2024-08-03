@@ -12,7 +12,7 @@ pub trait EncoderController<const BITS: u8> {
     fn last_steps_ref(&mut self) -> &mut usize;
 
     // MSB_MASK is used to detect overflow and underflow when the most significant bit changes.
-    const MSB_MASK : usize = 1 << (BITS - 1);
+    const MSB_MASK: usize = 1 << (BITS - 1);
 
     // This function returns the delta of the step count since the last time this function was called.
     fn delta(&mut self) -> (isize, isize) {

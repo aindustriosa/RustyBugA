@@ -1,4 +1,3 @@
-use heapless::pool::arc::Arc;
 use crate::{
     hal::{
         gpio::{Analog, Output, Pin},
@@ -6,6 +5,7 @@ use crate::{
     },
     ADC_POOL,
 };
+use heapless::pool::arc::Arc;
 
 /// The LineSensor used to detect the place where the line is located.
 /// It uses 8 analog pins connected to the light intensity sensors, 1 pin for turning on the led in
@@ -29,7 +29,6 @@ pub struct LightSensorArray {
 
 impl light_sensor_array_controller::LightSensorArrayController for LightSensorArray {
     fn get_light_map(&mut self) -> [u16; 8] {
-
         let mut adc = self.adc.borrow_mut();
 
         let light_map = [

@@ -15,11 +15,8 @@ use hal::timer::SysDelay;
 
 use core::cell::RefCell;
 
-use heapless::{
-    arc_pool,
-    pool::arc::ArcBlock,
-};
 use core::ops::Deref;
+use heapless::{arc_pool, pool::arc::ArcBlock};
 
 use engine::engine::Engine;
 use engine::motor::Motor;

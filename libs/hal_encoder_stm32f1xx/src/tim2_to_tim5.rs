@@ -19,28 +19,42 @@ pub enum EncoderPolarity {
 impl IncrementalEncoder {
     const SLAVE_MODE_SELECTION: u8 = tim2::smcr::SMS_A::EncoderMode3 as u8;
 
-    pub fn new(tim: *const tim2::RegisterBlock, channels: TimerChannels, polarity: EncoderPolarity) -> Self {
+    pub fn new(
+        tim: *const tim2::RegisterBlock,
+        channels: TimerChannels,
+        polarity: EncoderPolarity,
+    ) -> Self {
         unsafe {
             // up/down on TI1FP1+TI2FP2 edges depending on complementary input
-            (*tim).smcr.modify(|_, w| w.sms().bits(IncrementalEncoder::SLAVE_MODE_SELECTION));
+            (*tim)
+                .smcr
+                .modify(|_, w| w.sms().bits(IncrementalEncoder::SLAVE_MODE_SELECTION));
 
             // quadrature encoder mode, input capture channels
             match channels {
                 TimerChannels::Ch1Ch2 => {
-                    (*tim).ccmr1_input().modify(|_, w| w.cc1s().ti1().cc2s().ti2());
+                    (*tim)
+                        .ccmr1_input()
+                        .modify(|_, w| w.cc1s().ti1().cc2s().ti2());
                 }
                 TimerChannels::Ch3Ch4 => {
-                    (*tim).ccmr2_input().modify(|_, w| w.cc3s().ti3().cc4s().ti4());
+                    (*tim)
+                        .ccmr2_input()
+                        .modify(|_, w| w.cc3s().ti3().cc4s().ti4());
                 }
             }
 
             // polarity of the input channels
             match polarity {
                 EncoderPolarity::PolarityAB => {
-                    (*tim).ccer.modify(|_, w| w.cc1p().clear_bit().cc2p().clear_bit());
+                    (*tim)
+                        .ccer
+                        .modify(|_, w| w.cc1p().clear_bit().cc2p().clear_bit());
                 }
                 EncoderPolarity::PolarityBA => {
-                    (*tim).ccer.modify(|_, w| w.cc1p().set_bit().cc2p().clear_bit());
+                    (*tim)
+                        .ccer
+                        .modify(|_, w| w.cc1p().set_bit().cc2p().clear_bit());
                 }
             }
 

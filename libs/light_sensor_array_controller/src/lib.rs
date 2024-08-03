@@ -9,4 +9,3 @@ pub trait LightSensorArrayController {
     /// Set led value
     fn set_led(&mut self, value: bool);
 }
-
