@@ -30,28 +30,23 @@ impl FSMState {
         mut status: LineFollowerStatus,
     ) -> (FSMState, LineFollowerStatus) {
         match (self, event) {
-            (FSMState::Idle {}, FSMEvent::Button1Pressed) => (FSMState::HardwareCheck {}, status),
-            (FSMState::Idle {}, FSMEvent::Button2Pressed) => (FSMState::Calibration {}, status),
-            (FSMState::Idle {}, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow {}, status),
-            (FSMState::HardwareCheck {}, FSMEvent::NothingHappend) => {
-                (FSMState::HardwareCheck {}, status)
-            }
-            (FSMState::HardwareCheck {}, FSMEvent::BatteryIsLow) => {
-                (FSMState::BatteryLow {}, status)
-            }
-            (FSMState::Calibration {}, FSMEvent::NothingHappend) => {
-                (FSMState::Calibration {}, status)
-            }
-            (FSMState::Calibration {}, FSMEvent::Button1Pressed) => {
-                (FSMState::LineFollowing {}, status)
-            }
-            (FSMState::Calibration {}, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow {}, status),
-            (FSMState::LineFollowing {}, FSMEvent::BatteryIsLow) => {
-                (FSMState::BatteryLow {}, status)
-            }
+            (FSMState::Idle, FSMEvent::Button1Pressed) => (FSMState::HardwareCheck, status),
+            (FSMState::Idle, FSMEvent::Button2Pressed) => (FSMState::Calibration, status),
+            (FSMState::Idle, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+
+            (FSMState::HardwareCheck, FSMEvent::NothingHappend) => (FSMState::Idle, status),
+            (FSMState::HardwareCheck, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+
+            (FSMState::Calibration, FSMEvent::Button1Pressed) => (FSMState::LineFollowing, status),
+            (FSMState::Calibration, FSMEvent::Button2Pressed) => (FSMState::Idle, status),
+            (FSMState::Calibration, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+
+            (FSMState::LineFollowing, FSMEvent::Button2Pressed) => (FSMState::Idle, status),
+            (FSMState::LineFollowing, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+
             (_s, _e) => {
                 Logger::new(&mut status.board.serial.tx).log("default to idle state\r\n");
-                (FSMState::Idle {}, status)
+                (FSMState::Idle, status)
             }
         }
     }

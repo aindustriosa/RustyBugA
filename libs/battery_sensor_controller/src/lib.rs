@@ -6,4 +6,3 @@ pub trait BatterySensorController {
 
     fn is_battery_low(&mut self) -> bool;
 }
-

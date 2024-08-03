@@ -56,7 +56,10 @@ fn main() -> ! {
         dp.USART1,
         (tx, rx),
         &mut afio.mapr,
-        Config::default().baudrate(115_200.bps()).wordlength_8bits().parity_none(),
+        Config::default()
+            .baudrate(115_200.bps())
+            .wordlength_8bits()
+            .parity_none(),
         &clocks,
     );
 

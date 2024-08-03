@@ -3,7 +3,6 @@
 use embedded_hal::digital::v2::InputPin;
 
 pub trait ButtonController {
-
     // This function returns true if the button is on pressed state
     fn is_pressed(&self) -> bool;
 
@@ -33,7 +32,7 @@ impl<Pin: InputPin, const PULLED_UP: bool> Button<Pin, PULLED_UP> {
 impl<const PULLED_UP: bool, Pin: InputPin> ButtonController for Button<Pin, PULLED_UP> {
     fn is_pressed(&self) -> bool {
         // this is resolved at compile time (zero cost abstraction!)
-        if PULLED_UP{
+        if PULLED_UP {
             self.pin.is_low().ok().unwrap()
         } else {
             self.pin.is_high().ok().unwrap()

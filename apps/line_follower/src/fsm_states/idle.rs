@@ -9,7 +9,11 @@
 ///  - battery is low: go to battery low state
 ///
 /// During this state the led D1 is on and the led D2 is off.
-
+///
+/// The state output events are:
+/// - Button1Pressed: When the user presses the button 1.
+/// - Button2Pressed: When the user presses the button 2.
+/// - BatteryIsLow: When the battery is low.
 use battery_sensor_controller::BatterySensorController;
 use hal_button::ButtonController;
 

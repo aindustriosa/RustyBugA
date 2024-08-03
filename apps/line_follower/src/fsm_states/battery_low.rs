@@ -3,8 +3,11 @@
 /// The battery low state is the state where the line follower is in when the battery is low.
 /// Here the line follower waits for the user to change the battery, it currently blinks the leds
 /// D1 and D2, prints a message to the user and uses the buzzer.
-/// 
+///
 /// If the battery is no longer low, the line follower will transition to the idle state.
+///
+/// The state output events are:
+/// - NothingHappend: When the battery is no longer low.
 use crate::board::timer::SysDelay;
 use mightybuga_bsc::prelude::*;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
@@ -42,7 +45,6 @@ struct Note {
 }
 
 fn play_notes(buzzer: &mut TimerBasedBuzzer, delay: &mut SysDelay) {
-
     const D: Note = Note {
         prescaler: 70,
         counter: 1828,
