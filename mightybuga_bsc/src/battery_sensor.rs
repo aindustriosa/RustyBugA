@@ -38,4 +38,9 @@ impl BatterySensorController for BatterySensor {
 
         battery_voltage_mv
     }
+
+    fn is_battery_low(&mut self) -> bool {
+        let battery_voltage_mv = self.get_battery_millivolts();
+        battery_voltage_mv < 4900
+    }
 }
