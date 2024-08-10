@@ -20,7 +20,7 @@ use crate::line_follower_status::LineFollowerStatus;
 
 use logging::Logger;
 
-pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
+pub fn run(status: & mut  LineFollowerStatus) -> FSMEvent {
     let mut logger = Logger::new(&mut status.board.serial.tx);
     logger.log("Battery low state\r\n");
 
@@ -33,7 +33,7 @@ pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
 
         if !status.board.battery_sensor.is_battery_low() {
             logger.log("Battery is no longer low\r\n");
-            return (FSMEvent::NothingHappend, status);
+            return FSMEvent::NothingHappend;
         }
     }
 }

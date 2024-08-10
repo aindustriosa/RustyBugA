@@ -34,18 +34,18 @@ fn main() -> ! {
     let mut fsm_event;
 
     loop {
-        (fsm_event, line_follower_status) = fsm_state.run(line_follower_status);
+        fsm_event = fsm_state.run(&mut line_follower_status);
         log_event(&mut line_follower_status.board, fsm_event);
-        (fsm_state, line_follower_status) = fsm_state.next(fsm_event, line_follower_status);
+        fsm_state = fsm_state.next(fsm_event, &mut line_follower_status);
     }
 }
 
 fn log_event(board: &mut Mightybuga_BSC, event: FSMEvent) {
     let mut logger = Logger::new(&mut board.serial.tx);
     match event {
-        FSMEvent::NothingHappend => logger.log("Nothing happened\r\n"),
-        FSMEvent::Button1Pressed => logger.log("Button 1 pressed\r\n"),
-        FSMEvent::Button2Pressed => logger.log("Button 2 pressed\r\n"),
-        FSMEvent::BatteryIsLow => logger.log("Battery is low\r\n"),
+        FSMEvent::NothingHappend => logger.log(" - Nothing happened -\r\n"),
+        FSMEvent::Button1Pressed => logger.log(" - Button 1 pressed -\r\n"),
+        FSMEvent::Button2Pressed => logger.log(" - Button 2 pressed -\r\n"),
+        FSMEvent::BatteryIsLow => logger.log(" - Battery is low -\r\n"),
     }
 }

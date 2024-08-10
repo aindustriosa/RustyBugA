@@ -12,7 +12,7 @@ pub enum FSMState {
 }
 
 pub trait Runnable {
-    fn run(&self, status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus);
+    fn run(&self, status: &mut LineFollowerStatus) -> FSMEvent;
 }
 
 #[derive(Clone, Copy)]
@@ -27,31 +27,31 @@ impl FSMState {
     pub fn next(
         self,
         event: FSMEvent,
-        mut status: LineFollowerStatus,
-    ) -> (FSMState, LineFollowerStatus) {
+        status: &mut LineFollowerStatus,
+    ) -> FSMState {
         match (self, event) {
-            (FSMState::Idle, FSMEvent::Button1Pressed) => (FSMState::HardwareCheck, status),
-            (FSMState::Idle, FSMEvent::Button2Pressed) => (FSMState::Calibration, status),
-            (FSMState::Idle, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+            (FSMState::Idle, FSMEvent::Button1Pressed) => FSMState::HardwareCheck,
+            (FSMState::Idle, FSMEvent::Button2Pressed) => FSMState::Calibration,
+            (FSMState::Idle, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
-            (FSMState::HardwareCheck, FSMEvent::NothingHappend) => (FSMState::Idle, status),
-            (FSMState::HardwareCheck, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+            (FSMState::HardwareCheck, FSMEvent::NothingHappend) => FSMState::Idle,
+            (FSMState::HardwareCheck, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
-            (FSMState::Calibration, FSMEvent::Button1Pressed) => (FSMState::LineFollowing, status),
-            (FSMState::Calibration, FSMEvent::Button2Pressed) => (FSMState::Idle, status),
-            (FSMState::Calibration, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+            (FSMState::Calibration, FSMEvent::Button1Pressed) => FSMState::LineFollowing,
+            (FSMState::Calibration, FSMEvent::Button2Pressed) => FSMState::Idle,
+            (FSMState::Calibration, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
-            (FSMState::LineFollowing, FSMEvent::Button2Pressed) => (FSMState::Idle, status),
-            (FSMState::LineFollowing, FSMEvent::BatteryIsLow) => (FSMState::BatteryLow, status),
+            (FSMState::LineFollowing, FSMEvent::Button2Pressed) => FSMState::Idle,
+            (FSMState::LineFollowing, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
             (_s, _e) => {
                 Logger::new(&mut status.board.serial.tx).log("default to idle state\r\n");
-                (FSMState::Idle, status)
+                FSMState::Idle
             }
         }
     }
 
-    pub fn run<'a>(&self, mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
+    pub fn run<'a>(&self, status: &mut LineFollowerStatus) -> FSMEvent {
         let mut logger = Logger::new(&mut status.board.serial.tx);
         match *self {
             FSMState::Idle {} => fsm_states::idle::run(status),

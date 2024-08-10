@@ -24,7 +24,7 @@ use crate::line_follower_status::LineFollowerStatus;
 
 use logging::Logger;
 
-pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
+pub fn run(status: & mut  LineFollowerStatus) -> FSMEvent {
     let mut logger = Logger::new(&mut status.board.serial.tx);
     logger.log("Calibration state\r\n");
 
@@ -39,14 +39,14 @@ pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
         }
         if status.board.btn_2.is_pressed() {
             logger.log("Exit calibration\r\n");
-            return (FSMEvent::Button2Pressed, status);
+            return FSMEvent::Button2Pressed;
         }
         if let Ok(serial_input) = status.board.serial.rx.read() {
             match serial_input {
                 b'1' => break,
                 b'2' => {
                     logger.log("Exit calibration\r\n");
-                    return (FSMEvent::Button2Pressed, status);
+                    return FSMEvent::Button2Pressed;
                 }
                 _ => {}
             }
@@ -67,16 +67,16 @@ pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
     logger.log("Press button 2 to go back to idle\r\n");
     loop {
         if status.board.btn_1.is_pressed() {
-            return (FSMEvent::Button1Pressed, status);
+            return FSMEvent::Button1Pressed;
         }
         if status.board.btn_2.is_pressed() {
             logger.log("Exit calibration\r\n");
-            return (FSMEvent::Button2Pressed, status);
+            return FSMEvent::Button2Pressed;
         }
         if let Ok(serial_input) = status.board.serial.rx.read() {
             match serial_input {
-                b'1' => return (FSMEvent::Button1Pressed, status),
-                b'2' => return (FSMEvent::Button2Pressed, status),
+                b'1' => return FSMEvent::Button1Pressed,
+                b'2' => return FSMEvent::Button2Pressed,
                 _ => {}
             }
         }

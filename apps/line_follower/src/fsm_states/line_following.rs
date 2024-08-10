@@ -17,7 +17,7 @@ use crate::line_follower_status::LineFollowerStatus;
 
 use logging::Logger;
 
-pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
+pub fn run( status: & mut LineFollowerStatus) -> FSMEvent {
     let mut logger = Logger::new(&mut status.board.serial.tx);
     logger.log("Line following state\r\n");
 
@@ -28,15 +28,15 @@ pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
         status.board.delay.delay_ms(50u32);
 
         if status.board.btn_2.is_pressed() {
-            return (FSMEvent::Button2Pressed, status);
+            return FSMEvent::Button2Pressed;
         }
         if status.board.battery_sensor.is_battery_low() {
-            return (FSMEvent::BatteryIsLow, status);
+            return FSMEvent::BatteryIsLow;
         }
         if let Ok(serial_input) = status.board.serial.rx.read() {
             match serial_input {
                 b'2' => {
-                    return (FSMEvent::Button2Pressed, status);
+                    return FSMEvent::Button2Pressed;
                 }
                 _ => {}
             }
@@ -45,5 +45,5 @@ pub fn run(mut status: LineFollowerStatus) -> (FSMEvent, LineFollowerStatus) {
 
     logger.log("End of line following\r\n");
 
-    (FSMEvent::NothingHappend, status)
+    FSMEvent::NothingHappend
 }
