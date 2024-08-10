@@ -115,10 +115,7 @@ mod tests {
 
         let mut in_2 = MockFakePin::new();
         in_2.expect_set_low().times(0).returning(|| Ok(()));
-        in_2
-            .expect_set_high()
-            .times(1)
-            .returning(|| Ok(()));
+        in_2.expect_set_high().times(1).returning(|| Ok(()));
 
         let pwm_pin = MockFakePwmPin::new();
 
@@ -136,10 +133,7 @@ mod tests {
 
         let mut in_2 = MockFakePin::new();
         in_2.expect_set_low().times(1).returning(|| Ok(()));
-        in_2
-            .expect_set_high()
-            .times(0)
-            .returning(|| Ok(()));
+        in_2.expect_set_high().times(0).returning(|| Ok(()));
 
         let pwm_pin = MockFakePwmPin::new();
 

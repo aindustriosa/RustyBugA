@@ -8,10 +8,10 @@
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
 
-use mightybuga_bsc::prelude::*;
-use panic_halt as _;
 use mightybuga_bsc as board;
+use mightybuga_bsc::prelude::*;
 use nb::block;
+use panic_halt as _;
 
 #[entry]
 fn main() -> ! {
