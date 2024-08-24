@@ -159,11 +159,13 @@ impl Mightybuga_BSC {
             gpiob.pb5.into_push_pull_output(&mut gpiob.crl),
             gpioa.pa12.into_push_pull_output(&mut gpioa.crh),
             left_motor_channel,
+            true,
         );
         let motor_right = Motor::new(
             gpiob.pb9.into_push_pull_output(&mut gpiob.crh),
             gpiob.pb8.into_push_pull_output(&mut gpiob.crh),
             right_motor_channel,
+            false,
         );
 
         // Engine is the struct which contains all the logics regarding the motors
