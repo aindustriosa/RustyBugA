@@ -25,6 +25,36 @@ impl<'a> Logger<'a> {
             .unwrap();
         }
     }
+
+    pub fn log_u16(&mut self, val: &u16) {
+        for digit_index in (1..6).rev() {
+
+            // We have to temporarily convert the u16 to u32, otherwise doing 10⁶5 would cause an
+            // overflow in a u16 (100,000 > 65,535)
+            let digit = ((*val as u32 % 10u32.pow(digit_index as u32)) / 10u32.pow(digit_index as u32 - 1)) as u16;
+            let digit_character = digit + 48; // 48 is the offset of the numbers in the ASCII table
+
+            block!(match self.uart.bwrite_all(&[digit_character as u8]) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(nb::Error::Other(())),
+            })
+            .unwrap();
+        }
+    }
+
+    pub fn log_u16_array(&mut self, array: &[u16]) {
+        self.log("[");
+
+        array.iter().enumerate().for_each(|(index, &value)| {
+            self.log_u16(&value);
+
+            if index != array.len() - 1 {
+                self.log(", ");
+            }
+        });
+
+        self.log("]");
+    }
 }
 
 #[cfg(test)]
