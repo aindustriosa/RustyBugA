@@ -29,12 +29,12 @@ impl<'a> Logger<'a> {
     pub fn log_u16(&mut self, val: &u16) {
         for digit_index in (1..6).rev() {
 
-            // We have to temporarily convert the u16 to u32, otherwise doing 10^5 would cause an
+            // We have to temporarily the u16 to u32, otherwise doing 10^5 would cause an
             // overflow in a u16 (100,000 > 65,535)
-            let digit = ((*val as u32 % 10u32.pow(digit_index as u32)) / 10u32.pow(digit_index as u32 - 1)) as u16;
-            let digit_character = digit + 48; // 48 is the offset of the numbers in the ASCII table
+            let digit = (*val as u32 % 10u32.pow(digit_index as u32)) / 10u32.pow(digit_index as u32 - 1);
+            let digit_character: u8 = digit as u8 + 48; // 48 is the offset of the numbers in the ASCII table
 
-            block!(match self.uart.bwrite_all(&[digit_character as u8]) {
+            block!(match self.uart.bwrite_all(&[digit_character]) {
                 Ok(_) => Ok(()),
                 Err(_) => Err(nb::Error::Other(())),
             })
