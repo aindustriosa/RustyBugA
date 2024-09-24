@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          rustup component add llvm-tools-preview
+          rustup component add llvm-tools-preview --force
           rustup target add thumbv7m-none-eabi
           cargo install cargo-binutils cargo-expand
           cargo install cargo-generate
