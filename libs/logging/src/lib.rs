@@ -25,6 +25,36 @@ impl<'a> Logger<'a> {
             .unwrap();
         }
     }
+
+    pub fn log_u16(&mut self, val: &u16) {
+        for digit_index in (1..6).rev() {
+
+            // We have to temporarily the u16 to u32, otherwise doing 10^5 would cause an
+            // overflow in a u16 (100,000 > 65,535)
+            let digit = (*val as u32 % 10u32.pow(digit_index as u32)) / 10u32.pow(digit_index as u32 - 1);
+            let digit_character: u8 = digit as u8 + 48; // 48 is the offset of the numbers in the ASCII table
+
+            block!(match self.uart.bwrite_all(&[digit_character]) {
+                Ok(_) => Ok(()),
+                Err(_) => Err(nb::Error::Other(())),
+            })
+            .unwrap();
+        }
+    }
+
+    pub fn log_u16_array(&mut self, array: &[u16]) {
+        self.log("[");
+
+        array.iter().enumerate().for_each(|(index, &value)| {
+            self.log_u16(&value);
+
+            if index != array.len() - 1 {
+                self.log(", ");
+            }
+        });
+
+        self.log("]");
+    }
 }
 
 #[cfg(test)]
@@ -77,5 +107,21 @@ mod tests {
         let mut logger = Logger::new(&mut mock_writer);
         logger.log("Hello");
         assert_eq!(mock_writer.get_string(), "Hello");
+    }
+
+    #[test]
+    fn test_log_u16() {
+        let mut mock_writer = MockWriter::new();
+        let mut logger = Logger::new(&mut mock_writer);
+        logger.log_u16(&3456u16);
+        assert_eq!(mock_writer.get_string(), "03456");
+    }
+
+    #[test]
+    fn test_log_u16_array() {
+        let mut mock_writer = MockWriter::new();
+        let mut logger = Logger::new(&mut mock_writer);
+        logger.log_u16_array(&[100u16, 250u16, 500u16]);
+        assert_eq!(mock_writer.get_string(), "[00100, 00250, 00500]");
     }
 }
