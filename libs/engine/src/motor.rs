@@ -32,11 +32,14 @@ pub struct Motor<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> {
     in_1: A,
     in_2: B,
     pwm: P,
+    // In case the motor is connected with inverted pinout, this is a temporary fix and it'll later
+    // be fixed in the actual hardware
+    inverted: bool,
 }
 
 impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> Motor<A, B, P> {
-    pub fn new(in_1: A, in_2: B, pwm: P) -> Self {
-        Motor { in_1, in_2, pwm }
+    pub fn new(in_1: A, in_2: B, pwm: P, inverted: bool) -> Self {
+        Motor { in_1, in_2, pwm, inverted }
     }
 }
 
@@ -49,16 +52,16 @@ impl<A: OutputPin, B: OutputPin, P: PwmPin<Duty = u16>> MotorController for Moto
     // 3. Brake: in_1 = 1, in_2 = 1  # this creates a short circuit, it is not recommended to use it for a long time
     // 4. Stop: speed = 0
     fn set_state(&mut self, state: MotorState) {
-        match state {
-            MotorState::Backward => {
+        match (self.inverted, state) {
+            (false, MotorState::Backward) | (true, MotorState::Forward) => {
                 let _ = self.in_1.set_high();
                 let _ = self.in_2.set_low();
             }
-            MotorState::Forward => {
+            (false, MotorState::Forward) | (true, MotorState::Backward) => {
                 let _ = self.in_1.set_low();
                 let _ = self.in_2.set_high();
             }
-            MotorState::Brake => {
+            (_, MotorState::Brake) => {
                 let _ = self.in_1.set_high();
                 let _ = self.in_2.set_high();
             }
@@ -120,7 +123,7 @@ mod tests {
         let pwm_pin = MockFakePwmPin::new();
 
         // when
-        let mut motor = Motor::new(in_1, in_2, pwm_pin);
+        let mut motor = Motor::new(in_1, in_2, pwm_pin, false);
         motor.forward();
     }
 
@@ -138,7 +141,25 @@ mod tests {
         let pwm_pin = MockFakePwmPin::new();
 
         // when
-        let mut motor = Motor::new(in_1, in_2, pwm_pin);
+        let mut motor = Motor::new(in_1, in_2, pwm_pin, false);
+        motor.backward();
+    }
+
+    #[test]
+    fn test_inverted_motor() {
+        // given
+        let mut in_1 = MockFakePin::new();
+        in_1.expect_set_low().times(1).returning(|| Ok(()));
+        in_1.expect_set_high().times(0).returning(|| Ok(()));
+
+        let mut in_2 = MockFakePin::new();
+        in_2.expect_set_low().times(0).returning(|| Ok(()));
+        in_2.expect_set_high().times(1).returning(|| Ok(()));
+
+        let pwm_pin = MockFakePwmPin::new();
+
+        // when
+        let mut motor = Motor::new(in_1, in_2, pwm_pin, true);
         motor.backward();
     }
 }
