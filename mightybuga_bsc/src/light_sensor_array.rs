@@ -15,14 +15,14 @@ pub struct LightSensorArray {
     pub led: Pin<'B', 1, Output>,
 
     /// The 8 pins for the light intensity sensors
-    pub sensor_0: Pin<'A', 0, Analog>,
+    pub sensor_0: Pin<'A', 0, Analog>, // this sensor is located on the left side of the robot
     pub sensor_1: Pin<'A', 1, Analog>,
     pub sensor_2: Pin<'A', 2, Analog>,
     pub sensor_3: Pin<'A', 3, Analog>,
     pub sensor_4: Pin<'A', 4, Analog>,
     pub sensor_5: Pin<'A', 5, Analog>,
     pub sensor_6: Pin<'A', 6, Analog>,
-    pub sensor_7: Pin<'A', 7, Analog>,
+    pub sensor_7: Pin<'A', 7, Analog>, // this sensor is located on the right side of the robot
 
     pub adc: Arc<ADC_POOL>,
 }

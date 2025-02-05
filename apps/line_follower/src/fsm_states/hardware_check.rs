@@ -9,8 +9,6 @@
 /// - NothingHappend: When all checks are done.
 use crate::board::timer::SysDelay;
 use battery_sensor_controller::BatterySensorController;
-use hal_button::ButtonController;
-use mightybuga_bsc::pac::dma1::ch;
 use mightybuga_bsc::prelude::*;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;

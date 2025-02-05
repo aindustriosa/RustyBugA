@@ -52,7 +52,6 @@ impl FSMState {
     }
 
     pub fn run<'a>(&self, status: &mut LineFollowerStatus) -> FSMEvent {
-        let mut logger = Logger::new(&mut status.board.serial.tx);
         match *self {
             FSMState::Idle {} => fsm_states::idle::run(status),
             FSMState::HardwareCheck {} => fsm_states::hardware_check::run(status),
