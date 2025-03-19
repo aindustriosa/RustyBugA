@@ -11,10 +11,6 @@ pub enum FSMState {
     BatteryLow,
 }
 
-pub trait Runnable {
-    fn run(&self, status: &mut LineFollowerStatus) -> FSMEvent;
-}
-
 #[derive(Clone, Copy)]
 pub enum FSMEvent {
     NothingHappend,

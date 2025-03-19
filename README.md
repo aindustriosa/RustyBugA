@@ -11,7 +11,8 @@ Installing:
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
-Setup:
+
+Setup (old):
 ```
 rustup update
 rustup component add llvm-tools-preview
@@ -20,11 +21,25 @@ cargo install cargo-binutils cargo-embed cargo-flash cargo-expand
 cargo install cargo-generate arm-toolchain
 ```
 
+Setup (new, after probe-rs):
+```
+rustup update
+rustup component add llvm-tools-preview
+rustup target add thumbv7m-none-eabi
+cargo install cargo-binutils cargo-expand
+cargo install cargo-generate arm-toolchain
+```
+
+(Maybe this is not needed anymore)
 ```
 wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
 
 mkdir /home/$USER/arm-gcc/
 tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
+```
+
+```
+sudo apt-get install openocd
 ```
 
 ## code docs

@@ -10,7 +10,7 @@ use mightybuga_bsc::{self as board, Mightybuga_BSC};
 
 extern crate alloc;
 
-use embedded_alloc::Heap;
+use embedded_alloc::LlffHeap as Heap;
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();

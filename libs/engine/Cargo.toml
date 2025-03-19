@@ -9,4 +9,4 @@ edition = "2021"
 embedded-hal = "0.2.7"
 
 [dev-dependencies]
-mockall = {version = "0.12.1", features = []}
+mockall = {version = "0.13.1", features = []}
