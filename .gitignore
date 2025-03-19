@@ -1,5 +1,8 @@
 .embuild
 target
-Cargo.lock
+
+# https://doc.rust-lang.org/cargo/faq.html#why-have-cargolock-in-version-control
+#Cargo.lock
+
 cfg.toml
 .vscode/
