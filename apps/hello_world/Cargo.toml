@@ -8,10 +8,10 @@ edition = "2021"
 
 [dependencies]
 mightybuga_bsc = { path = "../../mightybuga_bsc" }
-panic-halt = "0.2.0"
+panic-halt = "1.0.0"
 nb = "1.1.0"
 
-embedded-alloc = "0.5.1"
+embedded-alloc = "0.6.0"
 
 logging = { path = "../../libs/logging" }
 engine = { path = "../../libs/engine" }
