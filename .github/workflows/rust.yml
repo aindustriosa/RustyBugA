@@ -46,4 +46,4 @@ jobs:
 
       - name: test
         run: |
-          cargo xtask test
+          cargo xtask test_native

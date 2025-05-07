@@ -9,7 +9,6 @@
 
 use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
-use panic_halt as _;
 
 use hal_button::ButtonController;
 
@@ -26,20 +25,23 @@ fn main() -> ! {
     loop {
         // check if any button changes its state
         if btn_1.is_changed() || btn_2.is_changed() || btn_3.is_changed() {
-            // bheck the state of the buttons and turn on the LEDs accordingly
+            // check the state of the buttons and turn on the LEDs accordingly
             match (btn_1.is_pressed(), btn_2.is_pressed(), btn_3.is_pressed()) {
                 (true, false, false) => {
                     // button 1 is pressed: turn on LED D1
+                    defmt::trace!("Button 1 pressed");
                     led_d1.set_high();
                     led_d2.set_low();
                 }
                 (false, true, false) => {
                     // button 2 is pressed: turn on LED D2
+                    defmt::trace!("Button 2 pressed");
                     led_d1.set_low();
                     led_d2.set_high();
                 }
                 (false, false, true) => {
                     // button 3 is pressed: turn on both LEDs
+                    defmt::trace!("Button 3 pressed");
                     led_d1.set_high();
                     led_d2.set_high();
                 }

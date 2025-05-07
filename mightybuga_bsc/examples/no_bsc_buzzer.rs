@@ -14,7 +14,9 @@
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use panic_halt as _;
+
+use panic_probe as _;
+use defmt_rtt as _; // global logger
 
 use stm32f1xx_hal::{pac, prelude::*, serial::*, timer::Channel};
 

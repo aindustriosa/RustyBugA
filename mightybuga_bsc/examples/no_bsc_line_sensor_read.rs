@@ -1,15 +1,14 @@
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use board::pac::USART1;
-use panic_halt as _;
 
-use mightybuga_bsc as board;
-use mightybuga_bsc::prelude::entry;
+use defmt_rtt as _;
+use panic_probe as _; // global logger
 
-use board::adc::Adc;
-use board::hal::serial::*;
-use board::hal::{pac, prelude::*};
+use cortex_m_rt::entry;
 use nb::block;
+use stm32f1xx_hal::adc::Adc;
+use stm32f1xx_hal::pac::USART1;
+use stm32f1xx_hal::{pac, prelude::*, serial::*};
 
 #[entry]
 fn main() -> ! {

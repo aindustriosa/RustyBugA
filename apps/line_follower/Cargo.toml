@@ -8,8 +8,11 @@ edition = "2021"
 
 [dependencies]
 mightybuga_bsc = { path = "../../mightybuga_bsc" }
-panic-halt = "1.0.0"
 nb = "1.1.0"
+
+defmt = "0.3"
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
 
 embedded-alloc = "0.6.0"
 

@@ -3,14 +3,13 @@
 #![no_std]
 #![no_main]
 
-use panic_halt as _;
-
 use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
 use mightybuga_bsc::timer::SysDelay;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzer;
 use mightybuga_bsc::timer_based_buzzer::TimerBasedBuzzerInterface;
 use mightybuga_bsc::EncoderController;
+use mightybuga_bsc::defmt;
 
 use battery_sensor_controller::BatterySensorController;
 use engine::engine::EngineController;
@@ -47,6 +46,7 @@ fn main() -> ! {
 
         // Read the user input
         if let Ok(byte) = block!(uart.rx.read()) {
+            defmt::println!("Received byte: {}", byte);
             // Process the user input
             match byte {
                 b'1' => {

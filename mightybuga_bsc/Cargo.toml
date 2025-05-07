@@ -9,12 +9,16 @@ edition = "2021"
 [dependencies]
 cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.7.3"
-embedded-hal = "0.2.7"
-stm32f1xx-hal = { version = "0.10.0", features = ["rt", "stm32f103", "medium"] }
+#embedded-hal = "0.2.7"
+#stm32f1xx-hal = { version = "0.10.0", features = ["rt", "stm32f103", "medium"] }
 cortex-m-semihosting = "0.5.0"
-panic-halt = "1.0.0"
-panic-semihosting = "0.6.0"
+#panic-halt = "1.0.0"
+#panic-semihosting = "0.6.0"
 heapless = { version = "0.8.0", features = ["portable-atomic"] }
+
+defmt = "0.3"
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
 
 fugit = "0.3.7"
 
@@ -27,7 +31,51 @@ timer_based_buzzer_interface = { path = "../libs/timer_based_buzzer_interface/" 
 light_sensor_array_controller = { path = "../libs/light_sensor_array_controller/" }
 battery_sensor_controller = { path = "../libs/battery_sensor_controller/" }
 
+[dependencies.embedded-hal]
+version = "0.2.7"
+features = ["unproven"]
+
+[dependencies.stm32f1xx-hal]
+version = "0.10.0"
+features = ["rt", "stm32f103", "medium"]
+
+[dev-dependencies]
+defmt-test = "0.3"
+
+# cargo build/run
+[profile.dev]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 'z'         # <-
+overflow-checks = true  # <-
+
+# cargo test
+[profile.test]
+codegen-units = 1
+debug = 2
+debug-assertions = true # <-
+incremental = false
+opt-level = 3           # <-
+overflow-checks = true  # <-
+
+# cargo build/run --release
 [profile.release]
-codegen-units = 1 # better optimizations
-debug = true # symbols are nice and they don't increase the size on Flash
-lto = true # better optimizations
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 3            # <-
+overflow-checks = false  # <-
+
+# cargo test --release
+[profile.bench]
+codegen-units = 1
+debug = 2
+debug-assertions = false # <-
+incremental = false
+lto = 'fat'
+opt-level = 3            # <-
+overflow-checks = false  # <-

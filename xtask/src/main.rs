@@ -34,7 +34,7 @@ fn main() -> Result<(), anyhow::Error> {
             }
             exec_test_lib(lib_name)
         }
-        ["test"] => exec_test(),
+        ["test_native"] => exec_test_native(),
         ["run", "app", app_name] => {
             if !app_names.contains(&app_name.to_string()) {
                 println!("ERROR: app name {} is not in app_names", app_name);
@@ -60,7 +60,7 @@ fn print_usage(
         println!("\tcargo xtask mightybuga_bsc example {}", example_name);
     }
     println!("\tcargo xtask mightybuga_bsc build");
-    println!("\tcargo xtask test");
+    println!("\tcargo xtask test_native");
     for lib_name in lib_names {
         println!("\tcargo xtask test lib {}", lib_name);
     }
@@ -118,7 +118,7 @@ fn exec_mightybuga_bsc_build() -> Result<(), anyhow::Error> {
 
 // Currently, we can only test native binaries here because we use this for CI. This is mainly code in libs.
 // Here we run `cargo test` in each crate in `libs`.
-fn exec_test() -> Result<(), anyhow::Error> {
+fn exec_test_native() -> Result<(), anyhow::Error> {
     let lib_names = get_lib_names()?;
     for lib_name in lib_names {
         exec_test_lib(&&lib_name)?;

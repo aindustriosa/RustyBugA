@@ -8,8 +8,6 @@ use core::cell::RefCell;
 
 use stm32f1xx_hal::{adc::Adc, pac::ADC1};
 
-use panic_halt as _;
-
 use mightybuga_bsc as board;
 
 use board::hal::{pac, prelude::*};

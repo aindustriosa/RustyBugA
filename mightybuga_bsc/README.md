@@ -4,19 +4,23 @@ Board support crate for the MightyBugA board, based on
  - https://github.com/rubberduck203/stm32f3-discovery/tree/master
 
 
-## Flashing
-We use OpenOCD and GDB to connect to the board and flash the binary.
-
-### Just flash and run the application
-Check what runner you have uncommented in .cargo/config:
-```
-runner = "./flash.sh"
-```
-And build and flash an example (from the root):
+## Examples
+### Building
 ```commandline
-cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
+# build an example with dev profile
+cargo build --example blink
+
+# build an example with dev profile and trace level logs
+DEFMT_LOG=trace cargo build --example blink
 ```
-or from the BSC folder:
+
+### Flashing (running)
+```commandline
+# build an example with dev profile and trace level logs
+DEFMT_LOG=trace cargo run --example blink
+```
+
+Note that these logs are printed through the semihosting interface (the JTAG interface, not the serial port).
 
 ## Debugging
 Go to the [documentation for debugging](../docs/GDB-Debugging/gdb-debugging.md).

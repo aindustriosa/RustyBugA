@@ -1,29 +1,19 @@
-[target.thumbv7m-none-eabi]
-# Option program the board and start a GDB session for debugging. You need
-# OpenOCD installed for this to work. Run `openocd` in a separate terminal
-# before running `cargo run` using 'openocd -f openocd.cfg'
-#runner = "gdb-multiarch -q -x openocd_debug.gdb"
-
-# Option to flash the program onto the board using just OpenOCD
-#runner = "./flash.sh"
-
-runner = "../tools/upload.sh"
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+runner = "probe-rs run --chip STM32F103CB"
+# runner = ["probe-rs", "run", "--chip", "$CHIP", "--log-format", "{L} {s}"]
 
 rustflags = [
-  # LLD (shipped with the Rust toolchain) is used as the default linker
-  "-C", "link-arg=-Tlink.x", "-g",
-
-  # if you run into problems with LLD switch to the GNU linker by commenting out
-  # this line
-  # "-C", "linker=arm-none-eabi-ld",
-
-  # if you need to link to pre-compiled C libraries provided by a C toolchain
-  # use GCC as the linker by commenting out both lines above and then
-  # uncommenting the three lines below
-  # "-C", "linker=arm-none-eabi-gcc",
-  # "-C", "link-arg=-Wl,-Tlink.x",
-  # "-C", "link-arg=-nostartfiles",
+  "-C", "linker=flip-link",
+  "-C", "link-arg=-Tlink.x",
+  "-C", "link-arg=-Tdefmt.x",
+  # This is needed if your flash or ram addresses are not aligned to 0x10000 in memory.x
+  # See https://github.com/rust-embedded/cortex-m-quickstart/pull/95
+  "-C", "link-arg=--nmagic",
 ]
 
 [build]
 target = "thumbv7m-none-eabi"    # Cortex-M3
+
+[alias]
+rb = "run --bin"
+rrb = "run --release --bin"
