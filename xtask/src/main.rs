@@ -26,6 +26,7 @@ fn main() -> Result<(), anyhow::Error> {
             exec_mightybuga_bsc_example(example_name.to_string())
         }
         ["mightybuga_bsc", "build"] => exec_mightybuga_bsc_build(),
+        ["mightybuga_bsc", "test"] => exec_test_mightybuga_bsc(),
         ["test", "lib", lib_name] => {
             if !lib_names.contains(&lib_name.to_string()) {
                 println!("ERROR: lib name {} is not in lib_names", lib_name);
@@ -60,6 +61,7 @@ fn print_usage(
         println!("\tcargo xtask mightybuga_bsc example {}", example_name);
     }
     println!("\tcargo xtask mightybuga_bsc build");
+    println!("\tcargo xtask mightybuga_bsc test");
     println!("\tcargo xtask test_native");
     for lib_name in lib_names {
         println!("\tcargo xtask test lib {}", lib_name);
@@ -113,6 +115,13 @@ fn exec_mightybuga_bsc_build() -> Result<(), anyhow::Error> {
     let sh = Shell::new()?;
     sh.change_dir(root_dir().join("mightybuga_bsc"));
     cmd!(sh, "cargo build").run()?;
+    Ok(())
+}
+
+fn exec_test_mightybuga_bsc() -> Result<(), anyhow::Error> {
+    let sh = Shell::new()?;
+    sh.change_dir(root_dir().join("mightybuga_bsc"));
+    cmd!(sh, "cargo test --lib").run()?;
     Ok(())
 }
 

@@ -79,3 +79,7 @@ incremental = false
 lto = 'fat'
 opt-level = 3            # <-
 overflow-checks = false  # <-
+
+
+[lib]
+harness = false

@@ -1,3 +1,4 @@
+#![no_main]
 #![no_std]
 #![allow(non_camel_case_types)]
 #![allow(static_mut_refs)]
@@ -277,5 +278,29 @@ impl Mightybuga_BSC {
             light_sensor_array,
             battery_sensor,
         })
+    }
+}
+
+
+// defmt-test 0.3.0 has the limitation that this `#[tests]` attribute can only be used
+// once within a crate. the module can be in any file but there can only be at most
+// one `#[tests]` module in this library crate
+//
+// These tests are run with: cargo test --lib
+#[cfg(test)]
+#[defmt_test::tests]
+mod unit_tests {
+    use defmt::assert;
+
+    #[test]
+    fn a_test_in_lib() {
+        defmt::info!("This is a test in the lib");
+        assert!(true)
+    }
+
+    #[test]
+    fn another_test() {
+        defmt::info!("This is another test in the lib");
+        assert!(true);
     }
 }

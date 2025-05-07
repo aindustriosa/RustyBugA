@@ -22,6 +22,14 @@ DEFMT_LOG=trace cargo run --example blink
 
 Note that these logs are printed through the semihosting interface (the JTAG interface, not the serial port).
 
+## Testing (embedded)
+```commandline
+mightybuga_bsc$ cargo test --lib
+
+# with logs:
+mightybuga_bsc$ DEFMT_LOG=trace cargo test --lib
+```
+
 ## Debugging
 Go to the [documentation for debugging](../docs/GDB-Debugging/gdb-debugging.md).
 
