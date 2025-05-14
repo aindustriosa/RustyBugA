@@ -13,7 +13,7 @@ pub enum FSMState {
 
 #[derive(Clone, Copy)]
 pub enum FSMEvent {
-    NothingHappend,
+    NothingHappened,
     Button1Pressed,
     Button2Pressed,
     BatteryIsLow,
@@ -30,7 +30,7 @@ impl FSMState {
             (FSMState::Idle, FSMEvent::Button2Pressed) => FSMState::Calibration,
             (FSMState::Idle, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
-            (FSMState::HardwareCheck, FSMEvent::NothingHappend) => FSMState::Idle,
+            (FSMState::HardwareCheck, FSMEvent::NothingHappened) => FSMState::Idle,
             (FSMState::HardwareCheck, FSMEvent::BatteryIsLow) => FSMState::BatteryLow,
 
             (FSMState::Calibration, FSMEvent::Button1Pressed) => FSMState::LineFollowing,

@@ -50,7 +50,7 @@ pub fn run(status: & mut  LineFollowerStatus) -> FSMEvent {
         logger.log("Battery is low\r\n");
         FSMEvent::BatteryIsLow
     } else {
-        FSMEvent::NothingHappend
+        FSMEvent::NothingHappened
     }
 }
 

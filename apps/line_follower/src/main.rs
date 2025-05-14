@@ -46,7 +46,7 @@ fn main() -> ! {
 fn log_event(board: &mut Mightybuga_BSC, event: FSMEvent) {
     let mut logger = Logger::new(&mut board.serial.tx);
     match event {
-        FSMEvent::NothingHappend => {
+        FSMEvent::NothingHappened => {
             logger.log(" - Nothing happened -\r\n");
             defmt::info!(" - Nothing happened -\r\n");
         }
