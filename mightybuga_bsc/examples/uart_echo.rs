@@ -11,7 +11,6 @@
 use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
 use nb::block;
-use panic_halt as _;
 
 #[entry]
 fn main() -> ! {

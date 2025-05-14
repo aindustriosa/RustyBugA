@@ -33,7 +33,7 @@ pub fn run(status: & mut  LineFollowerStatus) -> FSMEvent {
 
         if !status.board.battery_sensor.is_battery_low() {
             logger.log("Battery is no longer low\r\n");
-            return FSMEvent::NothingHappend;
+            return FSMEvent::NothingHappened;
         }
     }
 }

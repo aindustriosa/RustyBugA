@@ -7,7 +7,6 @@
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use panic_halt as _;
 
 use mightybuga_bsc as board;
 

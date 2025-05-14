@@ -38,9 +38,13 @@ mkdir /home/$USER/arm-gcc/
 tar -xf gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2 -C /home/$USER/arm-gcc/
 ```
 
+## defmt and prove-rs dependencies
+### flip-link:
 ```
-sudo apt-get install openocd
+cargo install flip-link
 ```
+### probe-rs:
+Install probe-rs by following the instructions at https://probe.rs/docs/getting-started/installation/.
 
 ## code docs
 ```
@@ -48,23 +52,24 @@ cargo doc --open
 ```
 
 ## Upload the firmware to the MCU
-
+### Apps
+#### Hello world
 ```commandline
-cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
+DEFMT_LOG=trace cargo xtask run app hello_world
 ```
 
-Set the environment variable *UPLOAD_TOOL* (default is `openocd`) to use your prefered tool for uploading the firmware to the flash memory of the MCU:
+#### Line follower
+```commandline
+# With (semihosting) logs
+DEFMT_LOG=trace cargo xtask run app line_follower
+```
 
-| tools | *UPLOAD_TOOL* | notes |
-|-------|---------------|-------|
-| OpenOCD + STLink-v2 probe | openocd | This is the default. |
-| BlackMagicProbe | blackmagic | *BMP_PORT* variable to set the device where the BMP is connected (default is `/dev/ttyACM0`). |
+### BSC examples
+```commandline
+cargo xtask mightybuga_bsc example blink # use 'cargo xtask help' for a complete list of options
 
-Example to use BMP:
-
-```sh
-export UPLOAD_TOOL=blackmagic
-cargo xtask run app hello_world
+# With trace level logs
+DEFMT_LOG=trace cargo xtask mightybuga_bsc example blink
 ```
 
 ## Debugging

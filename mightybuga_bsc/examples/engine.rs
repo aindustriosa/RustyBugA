@@ -8,7 +8,6 @@
 
 use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
-use panic_halt as _;
 
 use engine::engine::EngineController;
 

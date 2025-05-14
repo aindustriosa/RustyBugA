@@ -90,7 +90,7 @@ pub fn run(status: &mut LineFollowerStatus) -> FSMEvent {
             None => {
                 logger.log("No line detected\r\n");
                 turn_off_robot(status);
-                return FSMEvent::NothingHappend;
+                return FSMEvent::NothingHappened;
             }
         }
 

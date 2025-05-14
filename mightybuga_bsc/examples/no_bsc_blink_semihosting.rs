@@ -14,6 +14,8 @@ use core::fmt::Write;
 // writeln.
 // https://wiki.segger.com/Semihosting
 use cortex_m_semihosting::hio;
+use panic_probe as _;
+use defmt_rtt as _; // global logger
 
 use cortex_m_rt::entry;
 use stm32f1xx_hal::{pac, prelude::*};

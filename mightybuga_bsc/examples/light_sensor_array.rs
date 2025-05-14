@@ -12,7 +12,6 @@
 use light_sensor_array_controller::LightSensorArrayController;
 use mightybuga_bsc as board;
 use mightybuga_bsc::prelude::*;
-use panic_halt as _;
 
 use nb::block;
 
@@ -31,6 +30,7 @@ fn main() -> ! {
         delay.delay(2000.millis());
 
         let values = light_sensor_array.get_light_map();
+        defmt::println!("Values: {}", values);
 
         // Print the values of the sensor array separated by new lines.
         values.iter().for_each(|value| {

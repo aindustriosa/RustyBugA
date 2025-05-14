@@ -2,12 +2,12 @@
 
 #![no_std]
 #![cfg_attr(not(doc), no_main)]
-use panic_halt as _;
 
-use mightybuga_bsc as board;
+use panic_probe as _;
+use defmt_rtt as _; // global logger
 
-use board::hal::{pac, prelude::*};
 use cortex_m_rt::entry;
+use stm32f1xx_hal::{pac, prelude::*};
 
 #[entry]
 fn main() -> ! {

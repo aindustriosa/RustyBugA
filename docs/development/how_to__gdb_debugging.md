@@ -1,3 +1,6 @@
+NOTE: With the adoption of probe-rs, we do not launch gdb and have no rules for debugging (go to [this commit](https://github.com/aindustriosa/RustyBugA/tree/5a5e5e1400c02fc40d0ed10d5d8124af1fe18f25) for a version of the code with these capabilities).
+TODO: Follow https://probe.rs/docs/tools/debugger and document how to debug with current tools.
+
 # GDB debugging
 Note that, currently, the debug commands are done inside each binary folder. This is because xtask only has rules for release (not debug) binaries and because each application folder has its own `.cargo` folder with the how to run aliases. 
 
