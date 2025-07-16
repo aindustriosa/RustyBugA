@@ -82,7 +82,7 @@ fn main() -> ! {
     // HAL structs
     let mut flash = dp.FLASH.constrain();
 
-    // Enable the timer 3 clock in the RCC register (we net to do this before the constrain)
+    // Enable the timer 3 clock in the RCC register (we need to do this before the constrain)
     dp.RCC.apb1enr.modify(|_, w| w.tim3en().set_bit());
 
     let rcc = dp.RCC.constrain();

@@ -1,5 +1,10 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "probe-rs run --chip STM32F103CB"
+# The "--probe" option is used when you have more than one compatible probe (for example):
+# $ probe-rs list
+#  The following debug probes were found:
+#  [0]: STLink V2 -- 0483:3748:60 (ST-LINK)               <-- We want to use this one
+#  [1]: ESP JTAG -- 303a:1001:B0:81:84:05:F6:D4 (EspJtag) <-- We also have a ESP c3 connected that we don't want to program
+runner = "probe-rs run --chip STM32F103CB --probe 0483:3748:60"
 # runner = ["probe-rs", "run", "--chip", "$CHIP", "--log-format", "{L} {s}"]
 
 rustflags = [

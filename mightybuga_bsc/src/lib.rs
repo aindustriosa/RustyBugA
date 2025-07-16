@@ -134,6 +134,7 @@ impl Mightybuga_BSC {
         rcc.apb1enr.modify(|_, w| w.tim4en().set_bit());
 
         // Use external crystal for clock
+        // http://nercury.github.io/rust/embedded/experiments/2019/01/27/rust-embedded-02-measuring-the-clock.html#the-clock-problem
         let clocks = rcc
             .constrain()
             .cfgr
