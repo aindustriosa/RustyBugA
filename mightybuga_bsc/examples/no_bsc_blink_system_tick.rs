@@ -19,12 +19,12 @@ use defmt_rtt as _;
 use panic_probe as _; // global logger
 
 use cortex_m::peripheral::syst::SystClkSource;
-use cortex_m_rt::{entry, exception};
+use cortex_m_rt::{entry, exception, interrupt};
 use stm32f1xx_hal::{pac, prelude::*};
 
 static mut MILLIS_COUNTER: u32 = 0;
 
-#[exception]
+#[interrupt]
 fn SysTick() {
     // Increment the milliseconds counter every time the SysTick interrupt is triggered
     unsafe {
