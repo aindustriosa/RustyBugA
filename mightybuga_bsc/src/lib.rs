@@ -48,6 +48,8 @@ pub use defmt; // so it can be used in apps
 use defmt_rtt as _; // global logger
 use cortex_m_semihosting::debug;
 
+use mightybuga_bsc_interface::MightybugaBsc;
+
 // same panicking *behavior* as `panic-probe` but doesn't print a panic message
 // this prevents the panic message being printed *twice* when `defmt::panic` is invoked
 #[defmt::panic_handler]
@@ -279,6 +281,40 @@ impl Mightybuga_BSC {
             battery_sensor,
         })
     }
+}
+
+
+impl MightybugaBsc for Mightybuga_BSC {
+    type LedD1 = gpio::Pin<'C', 13, gpio::Output>;
+    type LedD2 = gpio::Pin<'B', 12, gpio::Output>;
+    type Serial = Serial<USART1, (gpio::Pin<'A', 9, gpio::Alternate>, gpio::Pin<'A', 10, gpio::Input>)>;
+    type Delay = SysDelay;
+    type Btn1 = hal_button::Button<gpio::Pin<'B', 13, gpio::Input<PullDown>>, false>;
+    type Btn2 = hal_button::Button<gpio::Pin<'C', 15, gpio::Input<PullDown>>, false>;
+    type Btn3 = hal_button::Button<gpio::Pin<'C', 14, gpio::Input<PullDown>>, false>;
+    type Buzzer = TimerBasedBuzzer;
+    type Engine = Engine<
+        Motor<gpio::Pin<'B', 5, gpio::Output>, gpio::Pin<'A', 12, gpio::Output>, PwmChannel<TIM1, 0>>,
+        Motor<gpio::Pin<'B', 9, gpio::Output>, gpio::Pin<'B', 8, gpio::Output>, PwmChannel<TIM1, 3>>,
+    >;
+    type LightSensorArray = LightSensorArray;
+    type BatterySensor = BatterySensor;
+    type EncoderL = IncrementalEncoder;
+    type EncoderR = IncrementalEncoder;
+
+    fn led_d1(&mut self) -> &mut Self::LedD1 { &mut self.led_d1 }
+    fn led_d2(&mut self) -> &mut Self::LedD2 { &mut self.led_d2 }
+    fn serial(&mut self) -> &mut Self::Serial { &mut self.serial }
+    fn delay(&mut self) -> &mut Self::Delay { &mut self.delay }
+    fn btn_1(&self) -> &Self::Btn1 { &self.btn_1 }
+    fn btn_2(&self) -> &Self::Btn2 { &self.btn_2 }
+    fn btn_3(&self) -> &Self::Btn3 { &self.btn_3 }
+    fn buzzer(&mut self) -> &mut Self::Buzzer { &mut self.buzzer }
+    fn engine(&mut self) -> &mut Self::Engine { &mut self.engine }
+    fn light_sensor_array(&mut self) -> &mut Self::LightSensorArray { &mut self.light_sensor_array }
+    fn battery_sensor(&mut self) -> &mut Self::BatterySensor { &mut self.battery_sensor }
+    fn encoder_l(&mut self) -> &mut Self::EncoderL { &mut self.encoder_l }
+    fn encoder_r(&mut self) -> &mut Self::EncoderR { &mut self.encoder_r }
 }
 
 

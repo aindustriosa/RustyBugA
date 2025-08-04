@@ -15,6 +15,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 
 [[package]]
+name = "app_tests_menu"
+version = "0.1.0"
+dependencies = [
+ "battery_sensor_controller",
+ "embedded-alloc",
+ "engine",
+ "light_sensor_array_controller",
+ "logging",
+ "mightybuga_bsc_interface",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "bare-metal"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -393,10 +406,18 @@ dependencies = [
  "hal_button",
  "heapless",
  "light_sensor_array_controller",
+ "mightybuga_bsc_interface",
  "nb 1.1.0",
  "panic-probe",
  "stm32f1xx-hal",
  "timer_based_buzzer_interface",
+]
+
+[[package]]
+name = "mightybuga_bsc_interface"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
 ]
 
 [[package]]
@@ -647,6 +668,15 @@ name = "termtree"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
+
+[[package]]
+name = "tests_menu"
+version = "0.1.0"
+dependencies = [
+ "app_tests_menu",
+ "mightybuga_bsc",
+ "mightybuga_bsc_interface",
+]
 
 [[package]]
 name = "thiserror"

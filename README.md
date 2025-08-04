@@ -28,9 +28,10 @@ rustup component add llvm-tools-preview
 rustup target add thumbv7m-none-eabi
 cargo install cargo-binutils cargo-expand
 cargo install cargo-generate arm-toolchain
+rustup target add thumbv7m-none-eabi
 ```
 
-(Maybe this is not needed anymore)
+(Probably this is not needed anymore)
 ```
 wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
 

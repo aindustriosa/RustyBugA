@@ -1,0 +1,9 @@
+[package]
+name = "mightybuga_bsc_interface"
+description = "Definition of the trait that a MightyBugA Board Support Crate buzzer must implement"
+version = "0.1.0"
+authors = ["Jorge Muñoz"]
+edition = "2021"
+
+[dependencies]
+embedded-hal = "0.2.7"

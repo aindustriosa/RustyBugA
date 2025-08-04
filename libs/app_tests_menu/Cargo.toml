@@ -1,0 +1,17 @@
+[package]
+name = "app_tests_menu"
+version = "0.1.0"
+authors = ["Jorge Muñoz"]
+edition = "2021"
+
+
+[dependencies]
+mightybuga_bsc_interface = { path = "../mightybuga_bsc_interface" }
+nb = "1.1.0"
+
+embedded-alloc = "0.6.0"
+
+logging = { path = "../../libs/logging" }
+engine = { path = "../../libs/engine" }
+light_sensor_array_controller = { path = "../../libs/light_sensor_array_controller" }
+battery_sensor_controller = { path = "../../libs/battery_sensor_controller" }
