@@ -10,7 +10,7 @@ edition = "2021"
 mightybuga_bsc = { path = "../../mightybuga_bsc" }
 mightybuga_bsc_interface = { path = "../../libs/mightybuga_bsc_interface" }
 
-app_tests_menu = { path = "../../libs/app_tests_menu" }
+bsc_tests_menu = { path = "../../libs/bsc_tests_menu" }
 
 
 [profile.release]

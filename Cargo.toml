@@ -1,17 +1,17 @@
 [workspace]
 members = [
-  "xtask",
+  "apps/hello_world",
+  "apps/line_follower",
+  "apps/tests_menu",
   "mightybuga_bsc",
-  "libs/app_tests_menu",
-  "libs/logging",
+  "libs/bsc_tests_menu",
   "libs/engine",
+  "libs/logging",
   "libs/timer_based_buzzer_interface",
   "libs/hal_button",
   "libs/hal_encoder_stm32f1xx",
   "libs/mightybuga_bsc_interface",
-  "apps/hello_world",
-  "apps/line_follower",
-  "apps/tests_menu",
+  "xtask",
 ]
 
 resolver = "2"

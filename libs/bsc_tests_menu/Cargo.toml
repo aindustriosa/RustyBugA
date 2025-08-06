@@ -1,5 +1,5 @@
 [package]
-name = "app_tests_menu"
+name = "bsc_tests_menu"
 version = "0.1.0"
 authors = ["Jorge Muñoz"]
 edition = "2021"
